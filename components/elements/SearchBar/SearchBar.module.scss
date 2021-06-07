@@ -1,0 +1,30 @@
+@import '@/styles/vars';
+
+.searchBar {
+  background-color: $lightest-grey;
+  min-width: 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.2rem 0.4rem;
+  flex: 2;
+  margin: 0 2rem;
+}
+.searchBar:focus-within {
+  border: solid 2px $light-grey;
+}
+.input {
+  border: none;
+  background-color: transparent;
+  width: 100%;
+}
+.input:focus::placeholder {
+  color: transparent;
+}
+.label {
+  display: none;
+}
+.iconSearch {
+  height: 1rem;
+  width: 1rem;
+}
