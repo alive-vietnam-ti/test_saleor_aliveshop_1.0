@@ -1,5 +1,9 @@
-import styles from './UserIcon.module.scss';
+import styles from './LoginModal.module.scss';
 import { Dialog } from '@reach/dialog';
+import {
+  LoginRegistrationForm,
+  IOnSubmit,
+} from '@/components/modules/LoginRegistrationForm';
 
 interface LoginModalProps {
   setShowLoginModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -14,21 +18,48 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   showLoginModal,
   loginOrRegister,
 }): JSX.Element => {
+  function login(formData: IOnSubmit): void {
+    console.log(formData);
+  }
+  function register(formData: IOnSubmit): void {
+    console.log(formData);
+  }
   return (
     <Dialog aria-label="Login or Register Form" isOpen={showLoginModal}>
       <div>
-        <button onClick={() => setShowLoginModal(false)}>X</button>
+        <div className={styles.modalClose}>
+          <button
+            className={styles.modalCloseBtn}
+            onClick={() => setShowLoginModal(false)}
+          >
+            X
+          </button>
+        </div>
         {loginOrRegister === 'login' ? (
           <div>
-            <p>Login form</p>
-            <button onClick={() => setLoginOrRegister('register')}>
-              Register
-            </button>
+            <LoginRegistrationForm onSubmit={login} buttonText="Login" />
+            <p>
+              Don&lsquo;t have an account?
+              <a
+                className={styles.changeFormLink}
+                onClick={() => setLoginOrRegister('register')}
+              >
+                Sign Up
+              </a>
+            </p>
           </div>
         ) : (
           <div>
-            <p>Registration Form</p>
-            <button onClick={() => setLoginOrRegister('login')}>Login</button>
+            <LoginRegistrationForm onSubmit={register} buttonText="Sign Up" />
+            <p>
+              Already have an account?
+              <a
+                className={styles.changeFormLink}
+                onClick={() => setLoginOrRegister('login')}
+              >
+                Login
+              </a>
+            </p>
           </div>
         )}
       </div>
