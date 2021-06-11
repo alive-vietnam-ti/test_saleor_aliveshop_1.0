@@ -1,17 +1,19 @@
 import React from 'react';
 import styles from './LoginRegistrationForm.module.scss';
 
-interface IOnSubmit {
+export interface IOnSubmit {
   email: string;
   password: string;
 }
 
 interface LoginRegistrationFormProps {
+  formTitle: string;
   buttonText: string;
   onSubmit: (data: IOnSubmit) => void;
 }
 
 export const LoginRegistrationForm: React.FC<LoginRegistrationFormProps> = ({
+  formTitle,
   buttonText,
   onSubmit,
 }): JSX.Element => {
@@ -21,7 +23,7 @@ export const LoginRegistrationForm: React.FC<LoginRegistrationFormProps> = ({
       email,
       password,
     }: { email: HTMLInputElement; password: HTMLInputElement } =
-      event.target.elements;
+      event.currentTarget.elements;
     onSubmit({
       email: email.value,
       password: password.value,
@@ -29,6 +31,7 @@ export const LoginRegistrationForm: React.FC<LoginRegistrationFormProps> = ({
   }
   return (
     <form onSubmit={handleSubmit}>
+      <h2>{formTitle}</h2>
       <div>
         <label htmlFor="email">Email</label>
         <input id="email" type="email" />

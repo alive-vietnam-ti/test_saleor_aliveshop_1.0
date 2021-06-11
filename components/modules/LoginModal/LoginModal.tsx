@@ -37,7 +37,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         </div>
         {loginOrRegister === 'login' ? (
           <div>
-            <LoginRegistrationForm onSubmit={login} buttonText="Login" />
+            <LoginRegistrationForm
+              onSubmit={login}
+              buttonText="Login"
+              formTitle="Login"
+            />
             <p>
               Don&lsquo;t have an account?
               <a
@@ -50,7 +54,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           </div>
         ) : (
           <div>
-            <LoginRegistrationForm onSubmit={register} buttonText="Sign Up" />
+            <LoginRegistrationForm
+              onSubmit={register}
+              buttonText="Sign Up"
+              formTitle="Login"
+            />
             <p>
               Already have an account?
               <a
