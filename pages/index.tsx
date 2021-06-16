@@ -15,7 +15,7 @@ const FeaturedFour = (): JSX.Element => {
   useEffect(() => {
     setState({ status: 'pending', response: null, error: null });
     const fetchFourQuery = `query{
-      products(first: 4) {
+      products(first: 4 filter: { search: "Polo Shirt" }) {
         edges {
           node {
             id
@@ -50,25 +50,42 @@ const FeaturedFour = (): JSX.Element => {
   }, []);
 
   if (status === 'idle' || status === 'pending') {
-    return <p>Loading...</p>;
+    return(
+        <ul className={styles.featuredFour}>
+          <li>Loading...</li>;
+        </ul>
+    )
   } else if (status === 'rejected') {
     console.error(`There was an error`, error);
-    return <p>No products available</p>;
+        return (
+        <ul className={styles.featuredFour}>
+          <li>No products available</li>;
+        </ul>
+        )
   } else if (status === 'resolved') {
     const edgesArray = response.data.products.edges;
-    return (
-      <ul>
+    if(edgesArray.length > 0 ) {
+      return (
+        <ul className={styles.featuredFour}>
         {edgesArray.map((edge: any) => {
+          console.log(edge.node)
           const { id, name, images } = edge.node;
           return (
             <li key={id}>
-              <h3>{name}</h3>
               <img src={images[0].url} />
+              <h3>{name}</h3>
             </li>
           );
         })}
-      </ul>
+        </ul>
+      )
+    } else {
+    return (
+        <ul className={styles.featuredFour}>
+          <li>Sorry no featured products today</li>
+        </ul>
     );
+    }
   }
 };
 
@@ -80,8 +97,10 @@ export const Home = (): JSX.Element => {
         <h1 className={styles.title}>
           Welcome to <a href="https://alive-web.vn/">Alive Shop</a>
         </h1>
+        <ul className={styles.featuredFour}>
+        <FeaturedFour />
+        </ul>
       </main>
-      <FeaturedFour />
       <Footer>
         <FooterBranding />
       </Footer>
