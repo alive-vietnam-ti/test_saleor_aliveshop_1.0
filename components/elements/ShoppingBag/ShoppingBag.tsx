@@ -1,8 +1,13 @@
 import styles from './ShoppingBag.module.scss';
 
-export const ShoppingBag = (): JSX.Element => {
+interface IShoppingBagProps{
+  setCartVisible: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+export const ShoppingBag: React.FC<IShoppingBagProps> = ({setCartVisible}): JSX.Element => {
   return (
     <svg
+      onClick={()=> setCartVisible(true)}
       className={styles.bagSvg}
       viewBox="0 0 20 20"
       xmlns="http://www.w3.org/2000/svg"

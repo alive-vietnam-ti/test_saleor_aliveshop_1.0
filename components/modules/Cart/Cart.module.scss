@@ -1,0 +1,25 @@
+@import '@/styles/vars';
+
+.overlay {
+  background-color: rgba(204, 204, 204, 0.70);
+  z-index: 1999;
+  top: 0;
+  right: 0;
+  position: fixed;
+  height: 100%;
+}
+.cart {
+  background-color: white;
+  top: 0;
+  right: 0;
+  position: fixed;
+  height: 100%;
+  transition: width 0.5s;
+  z-index: 2000;
+  box-shadow: -2px 0px 4px 0px #00000010;
+}
+.close {
+  color: black;
+  padding: 0.5rem;
+  cursor: pointer;
+}

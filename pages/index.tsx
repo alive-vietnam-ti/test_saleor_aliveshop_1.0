@@ -5,6 +5,7 @@ import { FooterBranding } from '@/components/elements/FooterBranding';
 import styles from '@/styles/page-styles/Home.module.scss';
 import { client } from '@/utils/api-client';
 
+
 const FeaturedFour = (): JSX.Element => {
   const [state, setState] = useState({
     status: 'idle',
@@ -68,7 +69,7 @@ const FeaturedFour = (): JSX.Element => {
       return (
         <ul className={styles.featuredFour}>
         {edgesArray.map((edge: any) => {
-          console.log(edge.node)
+          //console.log(edge.node)
           const { id, name, images } = edge.node;
           return (
             <li key={id}>
@@ -88,15 +89,21 @@ const FeaturedFour = (): JSX.Element => {
     }
   }
 };
-
-export const Home = (): JSX.Element => {
+interface IPageProps {
+  shoppingCart: Array<Object | []>;
+  cartVisible: boolean;
+  setCartVisible: React.Dispatch<React.SetStateAction<boolean>>
+}
+export const Home: React.FC<IPageProps> = ({shoppingCart, cartVisible, setCartVisible}): JSX.Element => {
   return (
     <>
       <Head />
       <main>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://alive-web.vn/">Alive Shop</a>
-        </h1>
+        <div className={styles.hero}> 
+          <h1 className={styles.title}>
+            Welcome to <a href="https://alive-web.vn/">Alive Shop</a>
+          </h1>
+        </div>
         <ul className={styles.featuredFour}>
         <FeaturedFour />
         </ul>
