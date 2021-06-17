@@ -74,12 +74,14 @@ const ProductDetail = (): JSX.Element => {
     );
   } else if (status === 'resolved') {
     const { data, errors } = response;
+    // deal with graphql errors
     if (data.product) {
       const product = data.product;
       return (
         <div>
           <h1>{product.name}</h1>
           <img src={product.images[0].url} />
+          <p>{product.seoDescription}</p>
         </div>
       );
     } else {
@@ -102,7 +104,9 @@ const ProductDetailPage: React.FC<IProductDetailProps> = ({
     <>
       <Head />
       <main>
-        <ProductDetail />
+        <div className={'container'}>
+          <ProductDetail />
+        </div>
       </main>
       <Footer>
         <FooterBranding />
