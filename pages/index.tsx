@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import Link from 'next/link'
+import Link from 'next/link';
 import { Head } from '@/components/modules/Head';
 import { Footer } from '@/components/modules/Footer';
 import { FooterBranding } from '@/components/elements/FooterBranding';
 import styles from '@/styles/page-styles/Home.module.scss';
 import { client } from '@/utils/api-client';
-
 
 const FeaturedFour = (): JSX.Element => {
   const [state, setState] = useState({
@@ -53,47 +52,47 @@ const FeaturedFour = (): JSX.Element => {
   }, []);
 
   if (status === 'idle' || status === 'pending') {
-    return(
-        <ul className={styles.featuredFour}>
-          <li>Loading...</li>;
-        </ul>
-    )
+    return (
+      <ul className={styles.featuredFour}>
+        <li>Loading...</li>;
+      </ul>
+    );
   } else if (status === 'rejected') {
     console.error(`There was an error`, error);
-        return (
-        <ul className={styles.featuredFour}>
-          <li>No products available</li>;
-        </ul>
-        )
+    return (
+      <ul className={styles.featuredFour}>
+        <li>No products available</li>;
+      </ul>
+    );
   } else if (status === 'resolved') {
     const edgesArray = response.data.products.edges;
-    if(edgesArray.length > 0 ) {
+    if (edgesArray.length > 0) {
       return (
         <ul className={styles.featuredFour}>
-        {edgesArray.map((edge: any) => {
-          console.log(edge.node)
-          const { id, name, images, slug } = edge.node;
-          return (
-            <li key={id}>
-              <Link href={`/products/${encodeURIComponent(slug)}`}>
-                <a>
-                  <article>
-                    <img src={images[0].url} />
-                    <h3>{name}</h3>
-                  </article>
-                </a>
-              </Link>
-            </li>
-          );
-        })}
+          {edgesArray.map((edge: any) => {
+            console.log(edge.node);
+            const { id, name, images, slug } = edge.node;
+            return (
+              <li key={id}>
+                <Link href={`/products/${encodeURIComponent(slug)}`}>
+                  <a>
+                    <article>
+                      <img src={images[0].url} />
+                      <h3>{name}</h3>
+                    </article>
+                  </a>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
-      )
+      );
     } else {
-    return (
+      return (
         <ul className={styles.featuredFour}>
           <li>Sorry no featured products today</li>
         </ul>
-    );
+      );
     }
   }
 };
@@ -101,22 +100,28 @@ const FeaturedFour = (): JSX.Element => {
 interface IPageProps {
   shoppingCart: Array<Object | []>;
   cartVisible: boolean;
-  setCartVisible: React.Dispatch<React.SetStateAction<boolean>>
+  setCartVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Home: React.FC<IPageProps> = ({shoppingCart, cartVisible, setCartVisible}): JSX.Element => {
+const Home: React.FC<IPageProps> = ({
+  shoppingCart,
+  cartVisible,
+  setCartVisible,
+}): JSX.Element => {
   return (
     <>
       <Head />
       <main>
-        <div className={styles.hero}> 
+        <div className={styles.hero}>
           <h1 className={styles.title}>
             Welcome to <a href="https://alive-web.vn/">Alive Shop</a>
           </h1>
         </div>
-        <ul className={styles.featuredFour}>
-        <FeaturedFour />
-        </ul>
+        <div className={'container'}>
+          <ul className={styles.featuredFour}>
+            <FeaturedFour />
+          </ul>
+        </div>
       </main>
       <Footer>
         <FooterBranding />

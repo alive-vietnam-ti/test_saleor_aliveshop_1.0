@@ -46,8 +46,11 @@ const ProductDetail = (): JSX.Element => {
         query: productDetailQuery,
       }),
     };
-    const response = client('http://127.0.0.1:8000/graphql/', clientCongfig);
-    response
+    const responsePromise = client(
+      'http://127.0.0.1:8000/graphql/',
+      clientCongfig
+    );
+    responsePromise
       .then((responseObj: any) => {
         setState({ status: 'resolved', response: responseObj, error: null });
       })

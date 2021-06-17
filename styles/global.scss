@@ -1,4 +1,5 @@
 @import './vars';
+@import './mixins';
 @charset 'UTF-8';
 /*-----------------------------------------------------------
         clearfix
@@ -245,4 +246,16 @@ a {
 
 * {
   box-sizing: border-box;
+}
+
+.container {
+  margin: 0 auto;
+  padding: 0 15px;
+  width: 100%;
+  @include respond(large) {
+    max-width: 960px;
+  }
+  @include respond(extra-large) {
+    max-width: 1140px;
+  }
 }
