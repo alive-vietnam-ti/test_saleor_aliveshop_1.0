@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Head } from '@/components/modules/head';
+import Link from 'next/link'
+import { Head } from '@/components/modules/Head';
 import { Footer } from '@/components/modules/Footer';
 import { FooterBranding } from '@/components/elements/FooterBranding';
 import styles from '@/styles/page-styles/Home.module.scss';
@@ -21,6 +22,7 @@ const FeaturedFour = (): JSX.Element => {
           node {
             id
             name
+            slug
             description
             images {
               alt
@@ -69,12 +71,18 @@ const FeaturedFour = (): JSX.Element => {
       return (
         <ul className={styles.featuredFour}>
         {edgesArray.map((edge: any) => {
-          //console.log(edge.node)
-          const { id, name, images } = edge.node;
+          console.log(edge.node)
+          const { id, name, images, slug } = edge.node;
           return (
             <li key={id}>
-              <img src={images[0].url} />
-              <h3>{name}</h3>
+              <Link href={`/products/${encodeURIComponent(slug)}`}>
+                <a>
+                  <article>
+                    <img src={images[0].url} />
+                    <h3>{name}</h3>
+                  </article>
+                </a>
+              </Link>
             </li>
           );
         })}
@@ -89,12 +97,14 @@ const FeaturedFour = (): JSX.Element => {
     }
   }
 };
+
 interface IPageProps {
   shoppingCart: Array<Object | []>;
   cartVisible: boolean;
   setCartVisible: React.Dispatch<React.SetStateAction<boolean>>
 }
-export const Home: React.FC<IPageProps> = ({shoppingCart, cartVisible, setCartVisible}): JSX.Element => {
+
+const Home: React.FC<IPageProps> = ({shoppingCart, cartVisible, setCartVisible}): JSX.Element => {
   return (
     <>
       <Head />
