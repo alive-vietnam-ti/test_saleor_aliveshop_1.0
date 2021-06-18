@@ -65,12 +65,12 @@ const FeaturedFour = (): JSX.Element => {
       </ul>
     );
   } else if (status === 'resolved') {
+    // @ts-ignore: Object is possibly 'null'
     const edgesArray = response.data.products.edges;
     if (edgesArray.length > 0) {
       return (
         <ul className={styles.featuredFour}>
           {edgesArray.map((edge: any) => {
-            console.log(edge.node);
             const { id, name, images, slug } = edge.node;
             return (
               <li key={id}>
@@ -87,18 +87,17 @@ const FeaturedFour = (): JSX.Element => {
           })}
         </ul>
       );
-    } else {
-      return (
-        <ul className={styles.featuredFour}>
-          <li>Sorry no featured products today</li>
-        </ul>
-      );
     }
   }
+  return (
+    <ul className={styles.featuredFour}>
+      <li>Sorry no featured products today</li>
+    </ul>
+  );
 };
 
 interface IPageProps {
-  shoppingCart: Array<Object | []>;
+  shoppingCart: Array<Record<string, unknown> | []>;
   cartVisible: boolean;
   setCartVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }

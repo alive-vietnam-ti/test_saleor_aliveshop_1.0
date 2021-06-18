@@ -19,14 +19,15 @@ export const LoginRegistrationForm: React.FC<LoginRegistrationFormProps> = ({
 }): JSX.Element => {
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    const {
+    const target = event.target as typeof event.target & {
+      email: { value: string };
+      password: { value: string };
+    };
+    const email = target.email.value;
+    const password = target.password.value;
+    onSubmit({
       email,
       password,
-    }: { email: HTMLInputElement; password: HTMLInputElement } =
-      event.currentTarget.elements;
-    onSubmit({
-      email: email.value,
-      password: password.value,
     });
   }
   return (
