@@ -8,6 +8,7 @@ import { Loading } from '@/components/elements/Loading';
 import { ProductLoadErrorFallback } from '@/components/elements/ProductLoadErrorFallback';
 import styles from '@/styles/page-styles/ProductDetail.module.scss';
 import { client } from '@/utils/api-client';
+import { getDefaultNormalizer } from '__test__/testUtils';
 
 interface IProductDetailProps {
   shoppingCart: Array<Record<string, unknown> | []>;
@@ -17,17 +18,16 @@ interface IProductDetailProps {
 
 const useProductDetail = () => {
   const router = useRouter();
-  const { slug } = router.query;
   /* security for this slug? */
   const [state, setState] = useState({
     status: 'idle',
     response: null,
     error: null,
   });
-  const unmounted = useRef(false);
 
   useEffect(() => {
-    if (!unmounted.current) {
+    if (router.isReady) {
+      const { slug } = router.query;
       setState({ status: 'pending', response: null, error: null });
       const productDetailQuery = `
         query {
@@ -56,16 +56,17 @@ const useProductDetail = () => {
       );
       responsePromise
         .then((responseObj: any) => {
-          setState({ status: 'resolved', response: responseObj, error: null });
+          setState({
+            status: 'resolved',
+            response: responseObj,
+            error: null,
+          });
         })
         .catch((error: any) => {
           setState({ status: 'rejected', response: null, error: error });
         });
     }
-    return () => {
-      unmounted.current = true;
-    };
-  }, [slug]);
+  }, [router.isReady]);
   return state;
 };
 
@@ -94,24 +95,30 @@ const ProductDetail: React.FC = (): JSX.Element => {
   if (status === 'idle' || status === 'pending') {
     return <Loading />;
   } else if (status === 'rejected') {
-    throw error;
+    return <ProductLoadErrorFallback error={error} />;
   } else if (status === 'resolved') {
-    // @ts-ignore: Object is possibly 'null'
+    //@ts-ignore: Object is possibly 'null'
     const { data, errors } = response;
     if (errors) {
-      console.log('Got here', errors);
-      throw new Error('There were errors');
+      return <ProductLoadErrorFallback error={errors} />;
+    }
+    if (data.product === null) {
+      return <ProductLoadErrorFallback error={'product was null'} />;
     }
     const product = data.product;
     return (
-      <div>
+      <>
         <h1>{product.name}</h1>
         <img src={product.images[0].url} />
         <p>{product.seoDescription}</p>
-      </div>
+      </>
     );
   }
-  return <></>;
+  return (
+    <ProductLoadErrorFallback
+      error={"End of ProductLoadErrorFallback component, shouldn't be here"}
+    />
+  );
 };
 
 const ProductDetailPage: React.FC<IProductDetailProps> = ({
@@ -123,9 +130,11 @@ const ProductDetailPage: React.FC<IProductDetailProps> = ({
     <>
       <Head />
       <main>
-        <ErrorBoundary>
-          <ProductDetail />
-        </ErrorBoundary>
+        <div className={`${styles.productDetailContainer} container`}>
+          <ErrorBoundary>
+            <ProductDetail />
+          </ErrorBoundary>
+        </div>
       </main>
       <Footer>
         <FooterBranding />
