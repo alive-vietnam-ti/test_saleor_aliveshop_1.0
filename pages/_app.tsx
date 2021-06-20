@@ -11,31 +11,44 @@ import { Favorite } from '@/components/elements/Favorite';
 import { LoginModal } from '@/components/modules/LoginModal';
 import { Cart } from '@/components/modules/Cart';
 
-
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const [showLoginModal, setShowLoginModal] = React.useState(false);
   const [loginOrRegister, setLoginOrRegister] = React.useState('login');
   const [cartVisible, setCartVisible] = React.useState(false);
   const [shoppingCart, setShoppingCart] = React.useState([]);
 
+  // Cart Logic
+  const handleAddToCart = (id: string): void => {
+    const shoppingCartCopy = shoppingCart.map((item: { id: string }) => ({
+      ...item,
+    }));
+    shoppingCartCopy.push({ id: id });
+    setShoppingCart(shoppingCartCopy);
+    setCartVisible(true);
+  };
+
   pageProps = {
+    handleAddToCart,
     shoppingCart,
     cartVisible,
     setCartVisible,
-    ...pageProps
-  }
+    ...pageProps,
+  };
 
   return (
     <>
       <TopNav>
         <Logo />
         <SearchBar />
-        <ShoppingBag  setCartVisible={setCartVisible}/>
+        <ShoppingBag
+          setCartVisible={setCartVisible}
+          shoppingCart={shoppingCart}
+        />
         <Favorite />
         <UserIcon setShowLoginModal={setShowLoginModal} />
       </TopNav>
       <Component {...pageProps} />
-      <Cart cartVisible={cartVisible} setCartVisible={setCartVisible}/>
+      <Cart cartVisible={cartVisible} setCartVisible={setCartVisible} />
       <LoginModal
         showLoginModal={showLoginModal}
         setShowLoginModal={setShowLoginModal}

@@ -10,10 +10,11 @@ import styles from '@/styles/page-styles/ProductDetail.module.scss';
 import { client } from '@/utils/api-client';
 import { getDefaultNormalizer } from '__test__/testUtils';
 
-interface IProductDetailProps {
+interface IPageProps {
   shoppingCart: Array<Record<string, unknown> | []>;
   cartVisible: boolean;
   setCartVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  handleAddToCart: (id: string) => void;
 }
 
 const useProductDetail = () => {
@@ -89,7 +90,10 @@ interface IProductDetailProps {
   children: React.ReactNode;
 }
 
-const ProductDetail: React.FC = (): JSX.Element => {
+const ProductDetail: React.FC<React.PropsWithChildren<IPageProps>> = ({
+  handleAddToCart,
+  ...pageProps
+}): JSX.Element => {
   const state = useProductDetail();
   const { status, response, error } = state;
   if (status === 'idle' || status === 'pending') {
@@ -111,6 +115,7 @@ const ProductDetail: React.FC = (): JSX.Element => {
         <h1>{product.name}</h1>
         <img src={product.images[0].url} />
         <p>{product.seoDescription}</p>
+        <button onClick={() => handleAddToCart(product.id)}>Add to Cart</button>
       </>
     );
   }
@@ -121,18 +126,16 @@ const ProductDetail: React.FC = (): JSX.Element => {
   );
 };
 
-const ProductDetailPage: React.FC<IProductDetailProps> = ({
-  shoppingCart,
-  cartVisible,
-  setCartVisible,
-}): JSX.Element => {
+const ProductDetailPage: React.FC<React.PropsWithChildren<IPageProps>> = (
+  pageProps
+): JSX.Element => {
   return (
     <>
       <Head />
       <main>
         <div className={`${styles.productDetailContainer} container`}>
           <ErrorBoundary>
-            <ProductDetail />
+            <ProductDetail {...pageProps} />
           </ErrorBoundary>
         </div>
       </main>

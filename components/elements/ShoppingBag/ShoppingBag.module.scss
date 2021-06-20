@@ -1,4 +1,17 @@
 @import '@/styles/vars';
+.bagDiv {
+  position: relative;
+}
+.bagNumItems {
+  position: absolute;
+  color: white;
+  background-color: black;
+  top: 12px;
+  left: 16px;
+  padding: 2px 5px;
+  font-size: 0.6rem;
+  border-radius: 50%;
+}
 
 .bagSvg {
   height: 2rem;
