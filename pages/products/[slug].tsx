@@ -36,8 +36,17 @@ const useProductDetail = () => {
             id
             name
             seoDescription
+            thumbnail{
+              url,
+              alt
+            }
             images{
-              url
+              url,
+              alt
+            }
+            variants{
+              id, 
+              name
             }
           }
         }
@@ -110,6 +119,7 @@ const ProductDetail: React.FC<React.PropsWithChildren<IPageProps>> = ({
       return <ProductLoadErrorFallback error={'product was null'} />;
     }
     const product = data.product;
+    console.log(product);
     return (
       <>
         <h1>{product.name}</h1>

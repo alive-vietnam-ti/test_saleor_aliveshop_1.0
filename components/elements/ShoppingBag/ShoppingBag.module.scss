@@ -1,6 +1,7 @@
 @import '@/styles/vars';
 .bagDiv {
   position: relative;
+  cursor: pointer;
 }
 .bagNumItems {
   position: absolute;
@@ -17,5 +18,4 @@
   height: 2rem;
   width: 2rem;
   margin: 0 0.5rem;
-  cursor: pointer;
 }

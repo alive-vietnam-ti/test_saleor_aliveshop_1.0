@@ -11,12 +11,11 @@ export const ShoppingBag: React.FC<IShoppingBagProps> = ({
 }): JSX.Element => {
   const numItemsInCart = shoppingCart.length;
   return (
-    <div className={styles.bagDiv}>
+    <div className={styles.bagDiv} onClick={() => setCartVisible(true)}>
       {numItemsInCart > 0 ? (
         <p className={styles.bagNumItems}>{numItemsInCart}</p>
       ) : null}
       <svg
-        onClick={() => setCartVisible(true)}
         className={styles.bagSvg}
         viewBox="0 0 20 20"
         xmlns="http://www.w3.org/2000/svg"
