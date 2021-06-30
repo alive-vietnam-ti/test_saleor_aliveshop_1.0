@@ -1,7 +1,8 @@
 import styles from './ShoppingBag.module.scss';
+import { ICartItem } from '@/components/modules/Cart';
 
 interface IShoppingBagProps {
-  shoppingCart: Array<Record<string, unknown> | []>;
+  shoppingCart: ICartItem[];
   setCartVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -9,6 +10,7 @@ export const ShoppingBag: React.FC<IShoppingBagProps> = ({
   setCartVisible,
   shoppingCart,
 }): JSX.Element => {
+  /* This needs to change to array.reduce(....)*/
   const numItemsInCart = shoppingCart.length;
   return (
     <div className={styles.bagDiv} onClick={() => setCartVisible(true)}>

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { Head } from '@/components/modules/Head';
 import { Footer } from '@/components/modules/Footer';
@@ -7,78 +6,64 @@ import { FooterBranding } from '@/components/elements/FooterBranding';
 import { Loading } from '@/components/elements/Loading';
 import { ProductLoadErrorFallback } from '@/components/elements/ProductLoadErrorFallback';
 import styles from '@/styles/page-styles/ProductDetail.module.scss';
-import { client } from '@/utils/api-client';
-import { getDefaultNormalizer } from '__test__/testUtils';
+import { fetchProductFromSlug } from '@/utils/api-client';
+import { ICartItem } from '@/components/modules/Cart';
 
-interface IPageProps {
-  shoppingCart: Array<Record<string, unknown> | []>;
-  cartVisible: boolean;
-  setCartVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  handleAddToCart: (id: string) => void;
+function asyncReducer(state, action) {
+  switch (action.type) {
+    case 'pending': {
+      return { status: 'pending', data: null, error: null };
+    }
+    case 'resolved': {
+      return { status: 'resolved', data: action.data, error: null };
+    }
+    case 'rejected': {
+      return { status: 'rejected', data: null, error: action.error };
+    }
+    default:
+      throw new Error(`Unhandled action type ${action.type}`);
+  }
 }
 
-const useProductDetail = () => {
-  const router = useRouter();
-  /* security for this slug? */
-  const [state, setState] = useState({
+function useAsync(initialState?: any) {
+  const [state, unsafeDispatch] = React.useReducer(asyncReducer, {
     status: 'idle',
-    response: null,
+    data: null,
     error: null,
+    ...initialState,
   });
 
-  useEffect(() => {
-    if (router.isReady) {
-      const { slug } = router.query;
-      setState({ status: 'pending', response: null, error: null });
-      const productDetailQuery = `
-        query {
-          product(slug: "${slug}") {
-            id
-            name
-            seoDescription
-            thumbnail{
-              url,
-              alt
-            }
-            images{
-              url,
-              alt
-            }
-            variants{
-              id, 
-              name
-            }
-          }
-        }
-      `;
-      const clientCongfig = {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json;charset=UTF-8',
-        },
-        body: JSON.stringify({
-          query: productDetailQuery,
-        }),
-      };
-      const responsePromise = client(
-        'http://127.0.0.1:8000/graphql/',
-        clientCongfig
-      );
-      responsePromise
-        .then((responseObj: any) => {
-          setState({
-            status: 'resolved',
-            response: responseObj,
-            error: null,
-          });
-        })
-        .catch((error: any) => {
-          setState({ status: 'rejected', response: null, error: error });
-        });
+  const mountedRef = React.useRef(false);
+  React.useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const dispatch = React.useCallback((...args) => {
+    if (mountedRef.current) {
+      unsafeDispatch(...args);
     }
-  }, [router.isReady]);
-  return state;
-};
+  }, []);
+
+  const run = React.useCallback(
+    (promise) => {
+      dispatch({ type: 'pending' });
+      promise.then(
+        (data: any) => {
+          dispatch({ type: 'resolved', data });
+        },
+        (error: any) => {
+          dispatch({ type: 'rejected', error });
+        }
+      );
+    },
+    [dispatch]
+  ); //not really needed as the dispatch function is stable and won't change
+
+  return { ...state, run };
+} //useAsync
 
 class ErrorBoundary extends React.Component {
   state = { error: null };
@@ -89,63 +74,96 @@ class ErrorBoundary extends React.Component {
     const { error } = this.state;
     if (error) {
       console.error('Error Boundary', this.state.error);
-      return <ProductLoadErrorFallback />;
+      return <ProductLoadErrorFallback error={error} />;
     }
     return this.props.children;
   }
 }
-
 interface IProductDetailProps {
-  children: React.ReactNode;
+  product: any;
+  shoppingCart: Array<Record<string, unknown> | []>;
+  cartVisible: boolean;
+  setCartVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  handleAddToCart: (id: string) => void;
 }
 
-const ProductDetail: React.FC<React.PropsWithChildren<IPageProps>> = ({
+const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
+  product,
   handleAddToCart,
   ...pageProps
 }): JSX.Element => {
-  const state = useProductDetail();
-  const { status, response, error } = state;
-  if (status === 'idle' || status === 'pending') {
+  return (
+    <>
+      <h1>{product.name}</h1>
+      <img src={product.images[0].url} />
+      <p>{product.seoDescription}</p>
+      <button onClick={() => handleAddToCart(product.id)}>Add to Cart</button>
+    </>
+  );
+};
+
+/* ProductDetail Wrapper */
+
+interface IPageProps {
+  apiEndpoint: string;
+  slugValue: string | string[] | undefined;
+  shoppingCart: Array<Record<string, unknown> | []>;
+  cartVisible: boolean;
+  setCartVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  handleAddToCart: (id: string) => void;
+}
+
+const ProductDetailWrapper: React.FC<React.PropsWithChildren<IPageProps>> = ({
+  slugValue,
+  apiEndpoint,
+  ...pageProps
+}): JSX.Element => {
+  const { status, data, error, run } = useAsync({
+    status: slugValue ? 'pending' : 'idle',
+  });
+
+  React.useEffect(() => {
+    if (!slugValue) {
+      return;
+    }
+    return run(fetchProductFromSlug(apiEndpoint, slugValue));
+  }, [slugValue]);
+
+  if (status === 'idle') {
+    return <p>No Product </p>;
+  } else if (status === 'pending') {
     return <Loading />;
   } else if (status === 'rejected') {
     return <ProductLoadErrorFallback error={error} />;
-  } else if (status === 'resolved') {
-    //@ts-ignore: Object is possibly 'null'
-    const { data, errors } = response;
-    if (errors) {
-      return <ProductLoadErrorFallback error={errors} />;
-    }
-    if (data.product === null) {
-      return <ProductLoadErrorFallback error={'product was null'} />;
-    }
-    const product = data.product;
-    console.log(product);
-    return (
-      <>
-        <h1>{product.name}</h1>
-        <img src={product.images[0].url} />
-        <p>{product.seoDescription}</p>
-        <button onClick={() => handleAddToCart(product.id)}>Add to Cart</button>
-      </>
-    );
+    return <p>Product Detail Rejected</p>;
+  } else if (status == 'resolved') {
+    return <ProductDetail {...pageProps} product={data} />;
+  } else {
+    return <p>Sorry, we are not sure what happened</p>;
   }
-  return (
-    <ProductLoadErrorFallback
-      error={"End of ProductLoadErrorFallback component, shouldn't be here"}
-    />
-  );
 };
+
+/* Page */
 
 const ProductDetailPage: React.FC<React.PropsWithChildren<IPageProps>> = (
   pageProps
 ): JSX.Element => {
+  const router = useRouter();
+  const [slugValue, setSlugValue] =
+    React.useState<string | string[] | undefined>(undefined);
+  React.useEffect(() => {
+    if (!router.isReady) {
+      return;
+    }
+    setSlugValue(router.query.slug);
+  }, [router.isReady]);
   return (
     <>
       <Head />
       <main>
         <div className={`${styles.productDetailContainer} container`}>
           <ErrorBoundary>
-            <ProductDetail {...pageProps} />
+            <ProductDetailWrapper {...pageProps} slugValue={slugValue} />
           </ErrorBoundary>
         </div>
       </main>

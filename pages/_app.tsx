@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { API_ENDPOINT } from '../settings/dev_settings';
 import '../styles/global.scss';
 import '@reach/dialog/styles.css';
 import type { AppProps /*, AppContext */ } from 'next/app';
@@ -9,25 +10,26 @@ import { ShoppingBag } from '@/components/elements/ShoppingBag';
 import { UserIcon } from '@/components/elements/UserIcon';
 import { Favorite } from '@/components/elements/Favorite';
 import { LoginModal } from '@/components/modules/LoginModal';
-import { Cart } from '@/components/modules/Cart';
+import { Cart, ICartItem } from '@/components/modules/Cart';
 
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const [showLoginModal, setShowLoginModal] = React.useState(false);
   const [loginOrRegister, setLoginOrRegister] = React.useState('login');
   const [cartVisible, setCartVisible] = React.useState(false);
-  const [shoppingCart, setShoppingCart] = React.useState([]);
+  const [shoppingCart, setShoppingCart] = React.useState<ICartItem[]>([]);
 
   // Cart Logic
-  const handleAddToCart = (id: string): void => {
-    const shoppingCartCopy = shoppingCart.map((item: { id: string }) => ({
+  const handleAddToCart = (cartItem: ICartItem): void => {
+    const shoppingCartCopy = shoppingCart.map((item: ICartItem) => ({
       ...item,
     }));
-    shoppingCartCopy.push({ id: id });
+    shoppingCartCopy.push(cartItem);
     setShoppingCart(shoppingCartCopy);
     setCartVisible(true);
   };
 
   pageProps = {
+    apiEndpoint: API_ENDPOINT,
     handleAddToCart,
     shoppingCart,
     cartVisible,
