@@ -8,6 +8,101 @@ import { ProductLoadErrorFallback } from '@/components/elements/ProductLoadError
 import styles from '@/styles/page-styles/ProductDetail.module.scss';
 import { fetchProductFromSlug } from '@/utils/api-client';
 import { ICartItem } from '@/components/modules/Cart';
+import image from 'next/image';
+
+/* Variant Select Component */
+const variants = [
+  {
+    id: 'UHJvZHVjdFZhcmlhbnQ6MjU2',
+    name: 'S',
+    sku: '29716755',
+    attributes: [
+      {
+        values: [],
+        attribute: {
+          name: 'Color',
+          id: 'QXR0cmlidXRlOjE0',
+          inputType: 'DROPDOWN',
+        },
+      },
+      {
+        values: [
+          {
+            slug: 's',
+            name: 'S',
+            id: 'QXR0cmlidXRlVmFsdWU6MzY=',
+          },
+        ],
+        attribute: {
+          name: 'Size',
+          id: 'QXR0cmlidXRlOjEz',
+          inputType: 'DROPDOWN',
+        },
+      },
+    ],
+    pricing: {
+      price: {
+        gross: {
+          amount: 3.5,
+        },
+        currency: 'USD',
+      },
+    },
+  },
+];
+interface IProductPrice {
+  gross: { amount: number };
+  currency: string;
+}
+interface IProductVariantAttributeValue {
+  slug: string;
+  name: string;
+  id: string;
+}
+
+interface IProductVariantAttributeValue {
+  name: string;
+  id: string;
+  inputType: string;
+}
+
+interface IProductVariantAttribute {
+  values: Array<IProductVariantAttributeValue>;
+  attribute: IProductVariantAttributeValue;
+}
+
+interface IProductVariant {
+  id: string;
+  name: string;
+  sku: string;
+  attributes: Array<IProductVariantAttribute>;
+  pricing: { price: IProductPrice };
+}
+
+type TProductVariantSelectProps = Array<IProductVariant>;
+
+const ProductVariantSelect: React.FC<
+  React.PropsWithChildren<TProductVariantSelectProps>
+> = (): JSX.Element => {
+  return <div style={{ padding: '20px' }}></div>;
+};
+
+/* Image Component */
+interface IProductImageProps {
+  images: Array<{ url: string; alt: string }>;
+}
+
+const ProductImage: React.FC<React.PropsWithChildren<IProductImageProps>> = ({
+  images,
+}): JSX.Element => {
+  return (
+    <div style={{ padding: '20px' }}>
+      <img src={images[0].url} alt={images[0].alt} />;
+    </div>
+  );
+};
+
+/* Async Reducer */
 
 function asyncReducer(state, action) {
   switch (action.type) {
@@ -94,10 +189,16 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
 }): JSX.Element => {
   return (
     <>
-      <h1>{product.name}</h1>
-      <img src={product.images[0].url} />
-      <p>{product.seoDescription}</p>
-      <button onClick={() => handleAddToCart(product.id)}>Add to Cart</button>
+      <div style={{ display: 'flex' }}>
+        <ProductImage images={product.images} />
+        <div>
+          <h1>{product.name}</h1>
+          <p>{product.seoDescription}</p>
+          <button onClick={() => handleAddToCart(product.id)}>
+            Add to Cart
+          </button>
+        </div>
+      </div>
     </>
   );
 };
