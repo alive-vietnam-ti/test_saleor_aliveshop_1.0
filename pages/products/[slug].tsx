@@ -79,12 +79,52 @@ interface IProductVariant {
   pricing: { price: IProductPrice };
 }
 
-type TProductVariantSelectProps = Array<IProductVariant>;
+interface IProductVariantSelectProps {
+  variants: Array<IProductVariant>;
+}
 
 const ProductVariantSelect: React.FC<
-  React.PropsWithChildren<TProductVariantSelectProps>
-> = (): JSX.Element => {
-  return <div style={{ padding: '20px' }}></div>;
+  React.PropsWithChildren<IProductVariantSelectProps>
+> = ({ variants }): JSX.Element => {
+  const initialSelectedValue = {
+    value: '0',
+    name: '--select--',
+  };
+  const [selected, setSelected] = React.useState({
+    value: '0',
+    name: '--select--',
+  });
+  const options = [
+    { value: '1', name: 'S' },
+    { value: '2', name: 'M' },
+    { value: '3', name: 'L' },
+  ];
+  const handleChange = (e) => {
+    const selectedValue = e.target.value;
+    if (selectedValue > 0) {
+      const filteredOption = options.filter(
+        (option) => option.value === selectedValue
+      );
+      setSelected(filteredOption[0]);
+    } else {
+      setSelected(initialSelectedValue);
+    }
+  };
+  console.log('rendered selected', selected);
+  return (
+    <div>
+      <select id="fruit" onChange={handleChange} value={selected.value}>
+        <option value="0">--select--</option>
+        {options.map((option) => {
+          return (
+            <option key={option.value} value={option.value}>
+              {option.name}
+            </option>
+          );
+        })}
+      </select>
+    </div>
+  );
 };
 
 /* Image Component */
@@ -194,6 +234,9 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
         <div>
           <h1>{product.name}</h1>
           <p>{product.seoDescription}</p>
+          {product.variants.length > 0 ? (
+            <ProductVariantSelect variants={product.variants} />
+          ) : null}
           <button onClick={() => handleAddToCart(product.id)}>
             Add to Cart
           </button>
