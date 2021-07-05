@@ -80,51 +80,87 @@ interface IProductVariant {
 }
 
 interface IProductVariantSelectProps {
+  productId: 'string';
   variants: Array<IProductVariant>;
 }
 
 const ProductVariantSelect: React.FC<
   React.PropsWithChildren<IProductVariantSelectProps>
-> = ({ variants }): JSX.Element => {
-  const initialSelectedValue = {
-    value: '0',
-    name: '--select--',
-  };
-  const [selected, setSelected] = React.useState({
-    value: '0',
-    name: '--select--',
-  });
-  const options = [
-    { value: '1', name: 'S' },
-    { value: '2', name: 'M' },
-    { value: '3', name: 'L' },
-  ];
+> = ({ productId, variants }) => {
+  const initialSelectedValue = { value: 'initial', name: '--select--' };
+  const [selected, setSelected] = React.useState(initialSelectedValue);
+  const [attributesObj, setAttributesObj] = React.useState({});
+
+  function getVariantAttributeOptions(productVariants: Array<IProductVariant>) {
+    /* function to build dropdown list for each product with each variant 
+    -returns object 'attributes' with each attribute types id as key 
+    */
+    const attributes = {};
+    productVariants.forEach((variant) => {
+      variant.attributes.forEach((attribute) => {
+        const attributeId = attribute.attribute.id;
+        if (Object.hasOwnProperty.call(attributes, attributeId)) {
+          //attributeId as key exists
+          const attributeValuesCopy = { ...attribute.values[0] };
+          attributes[attributeId].attributeOptions.push(attributeValuesCopy);
+        } else {
+          //attributeId as key doesnot exist
+          const attributeValuesCopy = { ...attribute.values[0] };
+          attributes[attributeId] = {
+            name: attribute.attribute.name,
+            inputType: attribute.attribute.inputType,
+            attributeOptions: [attributeValuesCopy],
+          };
+        }
+      });
+    });
+    return attributes;
+  }
+
+  React.useEffect(() => {
+    const attributesO = getVariantAttributeOptions(variants);
+    setAttributesObj(attributesO);
+  }, [productId]);
+
   const handleChange = (e) => {
-    const selectedValue = e.target.value;
-    if (selectedValue > 0) {
-      const filteredOption = options.filter(
-        (option) => option.value === selectedValue
-      );
-      setSelected(filteredOption[0]);
-    } else {
-      setSelected(initialSelectedValue);
-    }
+    console.log(e.target.value);
   };
-  console.log('rendered selected', selected);
-  return (
-    <div>
-      <select id="fruit" onChange={handleChange} value={selected.value}>
-        <option value="0">--select--</option>
-        {options.map((option) => {
-          return (
-            <option key={option.value} value={option.value}>
-              {option.name}
-            </option>
-          );
-        })}
-      </select>
-    </div>
-  );
+
+  const emptyAttributesOptionsCheck = (attrsOptionArr) => {
+    const filteredArr = attrsOptionArr.filter((optionObj) => {
+      return Object.keys(optionObj).length > 0;
+    });
+    return filteredArr.length > 0;
+  };
+
+  if (Object.keys(attributesObj).length === null) {
+    return <></>;
+  } else {
+    return Object.keys(attributesObj).map((attributeId: string) => {
+      const attribute = attributesObj[attributeId];
+      return emptyAttributesOptionsCheck(attribute.attributeOptions) ? (
+        <div key={attributeId} style={{ margin: '20px 0' }}>
+          <label htmlFor={attributeId} style={{ display: 'block' }}>
+            {attribute.name}
+          </label>
+          <select
+            id={attributeId}
+            onChange={handleChange}
+            value={selected.value}
+          >
+            <option value="initial">--select--</option>
+            {attribute.attributeOptions.map((option: any) => {
+              return (
+                <option key={option.id} value={option.id}>
+                  {option.name}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+      ) : null;
+    }); //return
+  }
 };
 
 /* Image Component */
@@ -235,7 +271,10 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
           <h1>{product.name}</h1>
           <p>{product.seoDescription}</p>
           {product.variants.length > 0 ? (
-            <ProductVariantSelect variants={product.variants} />
+            <ProductVariantSelect
+              productId={product.id}
+              variants={product.variants}
+            />
           ) : null}
           <button onClick={() => handleAddToCart(product.id)}>
             Add to Cart
