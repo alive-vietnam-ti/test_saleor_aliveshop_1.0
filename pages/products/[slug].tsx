@@ -9,6 +9,7 @@ import styles from '@/styles/page-styles/ProductDetail.module.scss';
 import { fetchProductFromSlug } from '@/utils/api-client';
 import { ICartItem } from '@/components/modules/Cart';
 import image from 'next/image';
+import { relative } from 'path';
 
 /* Variant Select Component */
 const variants = [
@@ -161,6 +162,46 @@ const ProductVariantSelect: React.FC<
       ) : null;
     }); //return
   }
+}; // Select
+
+/* Quantity Component */
+interface IProductQuantity {
+  handleQuantityChange: (event: any) => void;
+}
+
+const ProductQuantity: React.FC<
+  React.PropsWithChildren<IProductVariantSelectProps>
+> = ({ handleQuantityChange }) => {
+  return (
+    <div
+      style={{
+        position: 'relative',
+        padding: '10px 15px',
+        margin: '10px 0',
+        border: '1px grey solid',
+      }}
+    >
+      <label
+        style={{
+          position: 'absolute',
+          background: 'white',
+          top: '-10px',
+          padding: '0 5px',
+        }}
+        htmlFor="productQuantity"
+      >
+        Quantity
+      </label>
+      <input
+        id="productQuantity"
+        onChange={handleQuantityChange}
+        type="number"
+        style={{ outline: 'none', border: 'medium transparent', width: '100%' }}
+        defaultValue="1"
+        min="1"
+      />
+    </div>
+  );
 };
 
 /* Image Component */
@@ -173,7 +214,7 @@ const ProductImage: React.FC<React.PropsWithChildren<IProductImageProps>> = ({
 }): JSX.Element => {
   return (
     <div style={{ padding: '20px' }}>
-      <img src={images[0].url} alt={images[0].alt} />;
+      <img src={images[0].url} alt={images[0].alt} />
     </div>
   );
 };
@@ -263,6 +304,9 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
   handleAddToCart,
   ...pageProps
 }): JSX.Element => {
+  const handleQuantityChange = (event) => {
+    console.log(event.target.value);
+  };
   return (
     <>
       <div style={{ display: 'flex' }}>
@@ -270,12 +314,13 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
         <div>
           <h1>{product.name}</h1>
           <p>{product.seoDescription}</p>
-          {product.variants.length > 0 ? (
+          {product.variants.length > 1 ? (
             <ProductVariantSelect
               productId={product.id}
               variants={product.variants}
             />
           ) : null}
+          <ProductQuantity handleQuantityChange={handleQuantityChange} />
           <button onClick={() => handleAddToCart(product.id)}>
             Add to Cart
           </button>
