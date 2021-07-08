@@ -11,6 +11,51 @@ import { ICartItem } from '@/components/modules/Cart';
 import image from 'next/image';
 import { relative } from 'path';
 
+/* Select Component */
+const Select = ({ attribute, handleSelectChange }) => {
+  const [options, setOptions] = React.useState(attribute.attributeOptions);
+  const [selected, setSelected] = React.useState({
+    id: 'initial',
+    name: '--select--',
+    slug: '',
+  });
+
+  const handleChangeLocal = (event) => {
+    const newValue = event.target.value;
+    const selectedOptionArr = options.filter((option) => {
+      return option.id === newValue;
+    });
+    setSelected(selectedOptionArr[0]);
+  };
+  return (
+    <div
+      key={attribute.attributeId}
+      id={attribute.attributeId}
+      style={{ margin: '20px 0' }}
+    >
+      <label htmlFor={attribute.attributeId} style={{ display: 'block' }}>
+        {attribute.name}
+      </label>
+      <select
+        id={attribute.attributeId}
+        onChange={(e: any) => {
+          handleChangeLocal(e);
+          handleSelectChange(e, attribute.attributeId, attribute.name);
+        }}
+        value={selected.id}
+      >
+        {options.map((option: any) => {
+          return (
+            <option key={option.id} value={option.id}>
+              {option.name}
+            </option>
+          );
+        })}
+      </select>
+    </div>
+  );
+}; // Select
+
 /* Variant Select Component */
 const variants = [
   {
@@ -83,31 +128,35 @@ interface IProductVariant {
 interface IProductVariantSelectProps {
   productId: 'string';
   variants: Array<IProductVariant>;
+  handleSelectChange: (
+    event: any,
+    attributeId: string,
+    attributeName: string
+  ) => void;
 }
 
 const ProductVariantSelect: React.FC<
   React.PropsWithChildren<IProductVariantSelectProps>
-> = ({ productId, variants }) => {
-  const initialSelectedValue = { value: 'initial', name: '--select--' };
-  const [selected, setSelected] = React.useState(initialSelectedValue);
+> = ({ productId, variants, handleSelectChange }) => {
   const [attributesObj, setAttributesObj] = React.useState({});
 
   function getVariantAttributeOptions(productVariants: Array<IProductVariant>) {
     /* function to build dropdown list for each product with each variant 
     -returns object 'attributes' with each attribute types id as key 
     */
-    const attributes = {};
+    const attributesObj = {};
     productVariants.forEach((variant) => {
       variant.attributes.forEach((attribute) => {
         const attributeId = attribute.attribute.id;
-        if (Object.hasOwnProperty.call(attributes, attributeId)) {
+        if (Object.hasOwnProperty.call(attributesObj, attributeId)) {
           //attributeId as key exists
           const attributeValuesCopy = { ...attribute.values[0] };
-          attributes[attributeId].attributeOptions.push(attributeValuesCopy);
+          attributesObj[attributeId].attributeOptions.push(attributeValuesCopy);
         } else {
           //attributeId as key doesnot exist
           const attributeValuesCopy = { ...attribute.values[0] };
-          attributes[attributeId] = {
+          attributesObj[attributeId] = {
+            attributeId: attributeId,
             name: attribute.attribute.name,
             inputType: attribute.attribute.inputType,
             attributeOptions: [attributeValuesCopy],
@@ -115,17 +164,13 @@ const ProductVariantSelect: React.FC<
         }
       });
     });
-    return attributes;
+    return attributesObj;
   }
 
   React.useEffect(() => {
     const attributesO = getVariantAttributeOptions(variants);
     setAttributesObj(attributesO);
   }, [productId]);
-
-  const handleChange = (e) => {
-    console.log(e.target.value);
-  };
 
   const emptyAttributesOptionsCheck = (attrsOptionArr) => {
     const filteredArr = attrsOptionArr.filter((optionObj) => {
@@ -134,31 +179,12 @@ const ProductVariantSelect: React.FC<
     return filteredArr.length > 0;
   };
 
-  if (Object.keys(attributesObj).length === null) {
+  if (Object.values(attributesObj).length === null) {
     return <></>;
   } else {
-    return Object.keys(attributesObj).map((attributeId: string) => {
-      const attribute = attributesObj[attributeId];
+    return Object.values(attributesObj).map((attribute: any) => {
       return emptyAttributesOptionsCheck(attribute.attributeOptions) ? (
-        <div key={attributeId} style={{ margin: '20px 0' }}>
-          <label htmlFor={attributeId} style={{ display: 'block' }}>
-            {attribute.name}
-          </label>
-          <select
-            id={attributeId}
-            onChange={handleChange}
-            value={selected.value}
-          >
-            <option value="initial">--select--</option>
-            {attribute.attributeOptions.map((option: any) => {
-              return (
-                <option key={option.id} value={option.id}>
-                  {option.name}
-                </option>
-              );
-            })}
-          </select>
-        </div>
+        <Select attribute={attribute} handleSelectChange={handleSelectChange} />
       ) : null;
     }); //return
   }
@@ -304,6 +330,23 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
   handleAddToCart,
   ...pageProps
 }): JSX.Element => {
+  const [customerSelected, setCustomerSelected] = React.useState({});
+
+  const handleSelectChange = (e, attributeId, attributeName) => {
+    const selectedValueId = e.target.value;
+    const customerSelectedCpy = JSON.parse(JSON.stringify(customerSelected));
+    if (!Object.hasOwnProperty.call(customerSelectedCpy, attributeId)) {
+      customerSelectedCpy[attributeId] = {
+        attributeTypeId: attributeId,
+        attributeTypeName: attributeName,
+        selectedValueId: selectedValueId,
+      };
+    } else {
+      customerSelectedCpy[attributeId].selectedValueId = selectedValueId;
+    }
+    setCustomerSelected(customerSelectedCpy);
+  };
+
   const handleQuantityChange = (event) => {
     console.log(event.target.value);
   };
@@ -318,6 +361,7 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
             <ProductVariantSelect
               productId={product.id}
               variants={product.variants}
+              handleSelectChange={handleSelectChange}
             />
           ) : null}
           <ProductQuantity handleQuantityChange={handleQuantityChange} />
