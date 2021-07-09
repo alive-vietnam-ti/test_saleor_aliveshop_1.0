@@ -37,6 +37,10 @@ function fetchProductFromSlug(url: string, slug: string) {
                   id
                   name
                   sku
+                  images {
+                    url
+                    alt
+                  }
                   attributes {
                       values {
                           slug

@@ -13,12 +13,19 @@ import { relative } from 'path';
 
 /* Select Component */
 const Select = ({ attribute, handleSelectChange }) => {
-  const [options, setOptions] = React.useState(attribute.attributeOptions);
-  const [selected, setSelected] = React.useState({
-    id: 'initial',
-    name: '--select--',
-    slug: '',
+  const [options, setOptions] = React.useState(() => {
+    /*lazy --> called only on first page render */
+    const attrsOptionsCopy = JSON.parse(
+      JSON.stringify(attribute.attributeOptions)
+    );
+    attrsOptionsCopy.unshift({
+      id: 'initial',
+      name: '--select--',
+      slug: 'initial',
+    });
+    return attrsOptionsCopy;
   });
+  const [selected, setSelected] = React.useState(options[0]);
 
   const handleChangeLocal = (event) => {
     const newValue = event.target.value;
@@ -193,40 +200,56 @@ const ProductVariantSelect: React.FC<
 /* Quantity Component */
 interface IProductQuantity {
   handleQuantityChange: (event: any) => void;
+  quantityState: { defaultQuanity: number; quantity: number; errors: string[] };
 }
 
 const ProductQuantity: React.FC<
   React.PropsWithChildren<IProductVariantSelectProps>
-> = ({ handleQuantityChange }) => {
+> = ({ handleQuantityChange, quantityState }) => {
   return (
-    <div
-      style={{
-        position: 'relative',
-        padding: '10px 15px',
-        margin: '10px 0',
-        border: '1px grey solid',
-      }}
-    >
-      <label
+    <>
+      {quantityState.errors.length > 0 ? (
+        <ul>
+          {quantityState.errors.map((error: string) => (
+            <li style={{ color: 'red' }} key={error}>
+              {error}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <div
         style={{
-          position: 'absolute',
-          background: 'white',
-          top: '-10px',
-          padding: '0 5px',
+          position: 'relative',
+          padding: '10px 15px',
+          margin: '10px 0',
+          border: '1px grey solid',
         }}
-        htmlFor="productQuantity"
       >
-        Quantity
-      </label>
-      <input
-        id="productQuantity"
-        onChange={handleQuantityChange}
-        type="number"
-        style={{ outline: 'none', border: 'medium transparent', width: '100%' }}
-        defaultValue="1"
-        min="1"
-      />
-    </div>
+        <label
+          style={{
+            position: 'absolute',
+            background: 'white',
+            top: '-10px',
+            padding: '0 5px',
+          }}
+          htmlFor="productQuantity"
+        >
+          Quantity
+        </label>
+        <input
+          id="productQuantity"
+          onChange={handleQuantityChange}
+          type="number"
+          style={{
+            outline: 'none',
+            border: 'medium transparent',
+            width: '100%',
+          }}
+          defaultValue={quantityState.defaultQuantity}
+          min="1"
+        />
+      </div>
+    </>
   );
 };
 
@@ -327,13 +350,24 @@ interface IProductDetailProps {
 
 const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
   product,
-  handleAddToCart,
+  addToCart,
   ...pageProps
 }): JSX.Element => {
+  const defaultQuantity = 1;
   const [customerSelected, setCustomerSelected] = React.useState({});
+  const [quantityState, setQuantityState] = React.useState(() => {
+    return {
+      defaultQuantity: defaultQuantity,
+      quantity: defaultQuantity,
+      errors: [],
+    };
+  });
 
   const handleSelectChange = (e, attributeId, attributeName) => {
     const selectedValueId = e.target.value;
+    if (selectedValueId === 'initial') {
+      return;
+    }
     const customerSelectedCpy = JSON.parse(JSON.stringify(customerSelected));
     if (!Object.hasOwnProperty.call(customerSelectedCpy, attributeId)) {
       customerSelectedCpy[attributeId] = {
@@ -344,12 +378,32 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
     } else {
       customerSelectedCpy[attributeId].selectedValueId = selectedValueId;
     }
+    console.log(customerSelectedCpy);
     setCustomerSelected(customerSelectedCpy);
-  };
+  }; // handleSelectChange
 
   const handleQuantityChange = (event) => {
-    console.log(event.target.value);
+    const quantity = Number(event.target.value);
+    const quantityStateCopy = JSON.parse(JSON.stringify(quantityState));
+    if (quantity < 1) {
+      const msg = 'Quantity must be a number greater than 0';
+      if (quantityStateCopy.errors.includes(msg)) {
+        return;
+      }
+      quantityStateCopy.errors.push(msg);
+      setQuantityState(quantityStateCopy);
+      return;
+    }
+    quantityStateCopy.quantity = quantity;
+    quantityStateCopy.errors = [];
+    setQuantityState(quantityStateCopy);
   };
+
+  const handleAddToCart = () => {
+    console.log('Quantity in handleAddtoCart', quantityState.quantity);
+    console.log('Product in handleAddtoCart', product);
+  };
+  console.log('product detail rerender');
   return (
     <>
       <div style={{ display: 'flex' }}>
@@ -364,10 +418,11 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
               handleSelectChange={handleSelectChange}
             />
           ) : null}
-          <ProductQuantity handleQuantityChange={handleQuantityChange} />
-          <button onClick={() => handleAddToCart(product.id)}>
-            Add to Cart
-          </button>
+          <ProductQuantity
+            handleQuantityChange={handleQuantityChange}
+            quantityState={quantityState}
+          />
+          <button onClick={() => handleAddToCart()}>Add to Cart</button>
         </div>
       </div>
     </>
@@ -382,7 +437,7 @@ interface IPageProps {
   shoppingCart: Array<Record<string, unknown> | []>;
   cartVisible: boolean;
   setCartVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  handleAddToCart: (id: string) => void;
+  addToCart: (id: string) => void;
 }
 
 const ProductDetailWrapper: React.FC<React.PropsWithChildren<IPageProps>> = ({

@@ -19,7 +19,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const [shoppingCart, setShoppingCart] = React.useState<ICartItem[]>([]);
 
   // Cart Logic
-  const handleAddToCart = (cartItem: ICartItem): void => {
+  const addToCart = (cartItem: ICartItem): void => {
     const shoppingCartCopy = shoppingCart.map((item: ICartItem) => ({
       ...item,
     }));
@@ -30,7 +30,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
 
   pageProps = {
     apiEndpoint: API_ENDPOINT,
-    handleAddToCart,
+    addToCart,
     shoppingCart,
     cartVisible,
     setCartVisible,
