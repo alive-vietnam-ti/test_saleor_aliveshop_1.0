@@ -20,13 +20,32 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
 
   // Cart Logic
   const addToCart = (cartItem: ICartItem): void => {
-    const shoppingCartCopy = shoppingCart.map((item: ICartItem) => ({
-      ...item,
-    }));
-    shoppingCartCopy.push(cartItem);
-    setShoppingCart(shoppingCartCopy);
+    if (!cartItem.variantId) {
+      return;
+    }
+    // check if variant in cart and if so increase quantity by quantity
+    if (shoppingCart.length > 0) {
+      let itemExistsInCart = false;
+      const shoppingCartCopy = JSON.parse(JSON.stringify(shoppingCart));
+      shoppingCartCopy.forEach((itemInCart: any) => {
+        if (itemInCart.variantId === cartItem.variantId) {
+          itemExistsInCart = true;
+          itemInCart.quantity += cartItem.quantity;
+        }
+      });
+      if (itemExistsInCart) {
+        setShoppingCart(shoppingCartCopy);
+      } else {
+        shoppingCartCopy.push(cartItem);
+        setShoppingCart(shoppingCartCopy);
+      }
+    } else {
+      const shoppingCartCopy = JSON.parse(JSON.stringify(shoppingCart));
+      shoppingCartCopy.push(cartItem);
+      setShoppingCart(shoppingCartCopy);
+    }
     setCartVisible(true);
-  };
+  }; // addtoCart
 
   pageProps = {
     apiEndpoint: API_ENDPOINT,
@@ -50,7 +69,11 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
         <UserIcon setShowLoginModal={setShowLoginModal} />
       </TopNav>
       <Component {...pageProps} />
-      <Cart cartVisible={cartVisible} setCartVisible={setCartVisible} />
+      <Cart
+        cartVisible={cartVisible}
+        setCartVisible={setCartVisible}
+        shoppingCart={shoppingCart}
+      />
       <LoginModal
         showLoginModal={showLoginModal}
         setShowLoginModal={setShowLoginModal}

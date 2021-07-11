@@ -13,6 +13,7 @@ function fetchProductFromSlug(url: string, slug: string) {
   const productDetailQuery = `query {
           product(slug: "${slug}") {
               id
+              slug
               name
               seoDescription
               thumbnail {

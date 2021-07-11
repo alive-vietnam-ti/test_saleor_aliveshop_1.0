@@ -363,6 +363,75 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
     };
   });
 
+  /* types for reduceVariantsToValueIds */
+  interface IVariantIdAndValues {
+    varId: string;
+    attrValueIds: string[];
+  }
+
+  function reduceVariantAttributesToValueIds(
+    variants: any
+  ): IVariantIdAndValues[] {
+    /* Reduce variants array to simply variant id and it's attribute values ids for easy filtering */
+    const variantAttrsArray: IVariantIdAndValues[] = [];
+    variants.forEach((variant: any) => {
+      const variantIdAndValues: IVariantIdAndValues = {
+        varId: variant.id,
+        attrValueIds: [],
+      };
+      variant.attributes.forEach((attribute: any) => {
+        // copy obj at values[0] or if empty will be empty object
+        const valObjCopy = { ...attribute.values[0] };
+        if (Object.hasOwnProperty.call(valObjCopy, 'id')) {
+          variantIdAndValues.attrValueIds.push(valObjCopy.id);
+        }
+      });
+      variantAttrsArray.push(variantIdAndValues);
+    });
+    return variantAttrsArray;
+  } // reduceVariantAttributesToValueIds
+
+  function createFiterObject(customerSelected: any) {
+    const filter: { selectedValueIds: string[] } = { selectedValueIds: [] };
+    for (const attributeTypeId in customerSelected) {
+      filter.selectedValueIds.push(
+        customerSelected[attributeTypeId].selectedValueId
+      );
+    }
+    return filter;
+  }
+
+  function findVariantFromOptionsSelected(reducedVariantsArray, filterObj) {
+    /* filter function to reduce reducedVatiantArray to just one variant based on the selected values */
+    let filteredArr = reducedVariantsArray.map((variant: any) => {
+      const copyObj = {
+        varId: variant.varId,
+        attrValueIds: [...variant.attrValueIds],
+      };
+      return copyObj;
+    });
+
+    filterObj.selectedValueIds.forEach((selectedValId: any) => {
+      const filteredCopy = filteredArr.filter((varsObj: any) =>
+        varsObj.attrValueIds.includes(selectedValId)
+      );
+      filteredArr = filteredCopy;
+    });
+
+    return filteredArr;
+  } //findVariantFromOptionsSelected
+
+  function getVariantFromVariantId(variants, variantId) {
+    const filtered = variants.filter((variant: any) => {
+      return variant.id === variantId;
+    });
+    if (filtered.length === 1) {
+      return filtered[0];
+    } else {
+      throw Error('Zero or more than one variant in getVariantFromVariantIds');
+    }
+  }
+
   const handleSelectChange = (e, attributeId, attributeName) => {
     const selectedValueId = e.target.value;
     if (selectedValueId === 'initial') {
@@ -378,7 +447,7 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
     } else {
       customerSelectedCpy[attributeId].selectedValueId = selectedValueId;
     }
-    console.log(customerSelectedCpy);
+    console.log('Customer Selected in handleSelectChange', customerSelectedCpy);
     setCustomerSelected(customerSelectedCpy);
   }; // handleSelectChange
 
@@ -401,8 +470,78 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
 
   const handleAddToCart = () => {
     console.log('Quantity in handleAddtoCart', quantityState.quantity);
-    console.log('Product in handleAddtoCart', product);
-  };
+    console.log('Variants in add to Cart', product.variants);
+    /* check if only one variant */
+    const cartItem = {
+      name: '',
+      slug: product.slug,
+      productId: product.id,
+      sku: '',
+      imageUrl: '',
+      imageAlt: '',
+      quantity: 0,
+      variantId: '',
+      grossPrice: null,
+      currency: '',
+    };
+
+    if (product.variants.length === 1) {
+      /* No attribute selected as only one variant */
+      const variant = product.variants[0];
+      cartItem.name = variant.name ? variant.name : product.name;
+      cartItem.sku = variant.sku;
+      if (variant.images.length > 0) {
+        cartItem.imageUrl = variant.images[0].url;
+        cartItem.imageAlt = variant.images[0].alt
+          ? variant.images[0].alt
+          : cartItem.name;
+      } else {
+        cartItem.imageUrl = product.images[0].url;
+        cartItem.imageAlt = product.images[0].alt
+          ? product.images[0].alt
+          : cartItem.name;
+      }
+      cartItem.variantId = variant.id;
+      cartItem.quantity = quantityState.quantity;
+      cartItem.grossPrice = variant.pricing.price.gross.amount;
+      cartItem.currency = variant.pricing.price.currency;
+    } else {
+      // implement the get vartiant from attribute values selected logic here
+      /* Need to make sure that customer has selected all attributes before this --> disable button */
+      const filter = createFiterObject(customerSelected);
+      const reducedVariantsArray = reduceVariantAttributesToValueIds(
+        product.variants
+      );
+      const filtered = findVariantFromOptionsSelected(
+        reducedVariantsArray,
+        filter
+      );
+      const variant = getVariantFromVariantId(
+        product.variants,
+        filtered[0].varId
+      );
+      // construct cartItem as in previous code **DUPLICATE CODE HERE --> function
+      cartItem.name = variant.name ? variant.name : product.name;
+      cartItem.sku = variant.sku;
+      if (variant.images.length > 0) {
+        cartItem.imageUrl = variant.images[0].url;
+        cartItem.imageAlt = variant.images[0].alt
+          ? variant.images[0].alt
+          : cartItem.name;
+      } else {
+        cartItem.imageUrl = product.images[0].url;
+        cartItem.imageAlt = product.images[0].alt
+          ? product.images[0].alt
+          : cartItem.name;
+      }
+      cartItem.variantId = variant.id;
+      cartItem.quantity = quantityState.quantity;
+      cartItem.grossPrice = variant.pricing.price.gross.amount;
+      cartItem.currency = variant.pricing.price.currency;
+    }
+    addToCart(cartItem);
+  }; //handleAddToCart
+
   console.log('product detail rerender');
   return (
     <>
@@ -437,7 +576,7 @@ interface IPageProps {
   shoppingCart: Array<Record<string, unknown> | []>;
   cartVisible: boolean;
   setCartVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  addToCart: (id: string) => void;
+  addToCart: () => void;
 }
 
 const ProductDetailWrapper: React.FC<React.PropsWithChildren<IPageProps>> = ({
