@@ -1,3 +1,4 @@
+import * as React from 'react';
 import styles from './ShoppingBag.module.scss';
 import { ICartItem } from '@/components/modules/Cart';
 
@@ -11,11 +12,22 @@ export const ShoppingBag: React.FC<IShoppingBagProps> = ({
   shoppingCart,
 }): JSX.Element => {
   /* This needs to change to array.reduce(....)*/
-  const numItemsInCart = shoppingCart.length;
+  const [numberItems, setNumberItems] = React.useState(0);
+  const getNumItemsInCart = (cart: any) => {
+    return cart.reduce(
+      (acc: number, currVal: any) => acc + currVal.quantity,
+      0
+    );
+  };
+
+  React.useEffect(() => {
+    setNumberItems(getNumItemsInCart(shoppingCart));
+  }, [shoppingCart]);
+
   return (
     <div className={styles.bagDiv} onClick={() => setCartVisible(true)}>
-      {numItemsInCart > 0 ? (
-        <p className={styles.bagNumItems}>{numItemsInCart}</p>
+      {numberItems > 0 ? (
+        <p className={styles.bagNumItems}>{numberItems}</p>
       ) : null}
       <svg
         className={styles.bagSvg}
