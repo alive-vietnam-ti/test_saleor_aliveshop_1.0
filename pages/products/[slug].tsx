@@ -485,9 +485,7 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
       currency: '',
     };
 
-    if (product.variants.length === 1) {
-      /* No attribute selected as only one variant */
-      const variant = product.variants[0];
+    function createCartItem(cartItem, variant, product) {
       cartItem.name = variant.name ? variant.name : product.name;
       cartItem.sku = variant.sku;
       if (variant.images.length > 0) {
@@ -505,6 +503,13 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
       cartItem.quantity = quantityState.quantity;
       cartItem.grossPrice = variant.pricing.price.gross.amount;
       cartItem.currency = variant.pricing.price.currency;
+      return cartItem;
+    }
+
+    if (product.variants.length === 1) {
+      /* No attribute selected as only one variant */
+      const variant = product.variants[0];
+      createCartItem(cartItem, variant, product);
     } else {
       // implement the get vartiant from attribute values selected logic here
       /* Need to make sure that customer has selected all attributes before this --> disable button */
@@ -520,24 +525,7 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
         product.variants,
         filtered[0].varId
       );
-      // construct cartItem as in previous code **DUPLICATE CODE HERE --> function
-      cartItem.name = variant.name ? variant.name : product.name;
-      cartItem.sku = variant.sku;
-      if (variant.images.length > 0) {
-        cartItem.imageUrl = variant.images[0].url;
-        cartItem.imageAlt = variant.images[0].alt
-          ? variant.images[0].alt
-          : cartItem.name;
-      } else {
-        cartItem.imageUrl = product.images[0].url;
-        cartItem.imageAlt = product.images[0].alt
-          ? product.images[0].alt
-          : cartItem.name;
-      }
-      cartItem.variantId = variant.id;
-      cartItem.quantity = quantityState.quantity;
-      cartItem.grossPrice = variant.pricing.price.gross.amount;
-      cartItem.currency = variant.pricing.price.currency;
+      createCartItem(cartItem, variant, product);
     }
     addToCart(cartItem);
   }; //handleAddToCart
