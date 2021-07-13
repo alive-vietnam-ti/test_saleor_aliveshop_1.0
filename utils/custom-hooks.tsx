@@ -57,4 +57,18 @@ function useAsync(initialState?: any) {
   return { ...state, run };
 } //useAsync
 
-export { useAsync };
+/* useBase64LocalStorage Custom Hook */
+function useBase64LocalStorage(key: string, defaultValue: any = '') {
+  const [state, setState] = React.useState(() => {
+    let stateValue = defaultValue;
+    if (typeof window !== 'undefined') {
+      if (window.localStorage.getItem(key)) {
+        stateValue = JSON.parse(window.atob(window.localStorage.getItem(key)));
+      }
+    }
+    return stateValue;
+  });
+  return [state, setState];
+}
+
+export { useAsync, useBase64LocalStorage };

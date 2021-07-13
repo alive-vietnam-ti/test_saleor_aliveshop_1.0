@@ -11,25 +11,15 @@ import { UserIcon } from '@/components/elements/UserIcon';
 import { Favorite } from '@/components/elements/Favorite';
 import { LoginModal } from '@/components/modules/LoginModal';
 import { Cart, ICartItem } from '@/components/modules/Cart';
+import { useBase64LocalStorage } from '@/utils/custom-hooks';
 
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
-  function parseShoppingCart(localStorageKey) {
-    let cart = [];
-    if (typeof window !== 'undefined') {
-      if (window.localStorage.getItem(localStorageKey)) {
-        cart = JSON.parse(
-          window.atob(window.localStorage.getItem(localStorageKey))
-        );
-      }
-    }
-    return cart;
-  }
-
-  const [showLoginModal, setShowLoginModal] = React.useState(false);
+  const cartLocalStorageKey = 'alive-cart';
   const [loginOrRegister, setLoginOrRegister] = React.useState('login');
   const [cartVisible, setCartVisible] = React.useState(false);
-  const [shoppingCart, setShoppingCart] = React.useState<ICartItem[]>(() =>
-    parseShoppingCart('alive-cart')
+  const [shoppingCart, setShoppingCart] = useBase64LocalStorage(
+    cartLocalStorageKey,
+    []
   );
 
   // Cart Logic
@@ -63,7 +53,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
 
   React.useEffect(() => {
     window.localStorage.setItem(
-      'alive-cart',
+      cartLocalStorageKey,
       window.btoa(JSON.stringify(shoppingCart))
     );
   }, [shoppingCart]);
