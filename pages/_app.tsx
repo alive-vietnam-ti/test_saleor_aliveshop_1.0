@@ -24,7 +24,9 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     let cart = [];
     if (typeof window !== 'undefined') {
       if (window.localStorage.getItem(localStorageKey)) {
-        cart = JSON.parse(window.localStorage.getItem(localStorageKey));
+        cart = JSON.parse(
+          window.atob(window.localStorage.getItem(localStorageKey))
+        );
       }
     }
     return cart;
@@ -60,7 +62,10 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   }; // addtoCart
 
   React.useEffect(() => {
-    window.localStorage.setItem('alive-cart', JSON.stringify(shoppingCart));
+    window.localStorage.setItem(
+      'alive-cart',
+      window.btoa(JSON.stringify(shoppingCart))
+    );
   }, [shoppingCart]);
 
   pageProps = {

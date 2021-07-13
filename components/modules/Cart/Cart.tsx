@@ -24,15 +24,6 @@ export const Cart: React.FC<CartProps> = ({
   shoppingCart,
 }): JSX.Element => {
   const check = true;
-  React.useEffect(() => {
-    const string = JSON.stringify(shoppingCart);
-    const encrypted = window.btoa(string);
-    const size = encrypted.length * (3 / 4);
-    console.log('Encrypted shoppingCart in CART', encrypted, 'size', size);
-    const unencrypted = window.atob(encrypted);
-    console.log('Unencrypted JSON string', unencrypted);
-    console.log('Unencrypted data', JSON.parse(unencrypted));
-  }, [shoppingCart]);
   return (
     <>
       <div
