@@ -16,7 +16,19 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const [showLoginModal, setShowLoginModal] = React.useState(false);
   const [loginOrRegister, setLoginOrRegister] = React.useState('login');
   const [cartVisible, setCartVisible] = React.useState(false);
-  const [shoppingCart, setShoppingCart] = React.useState<ICartItem[]>([]);
+  const [shoppingCart, setShoppingCart] = React.useState<ICartItem[]>(
+    parseShoppingCart('alive-cart')
+  );
+
+  function parseShoppingCart(localStorageKey) {
+    let cart = [];
+    if (typeof window !== 'undefined') {
+      if (window.localStorage.getItem(localStorageKey)) {
+        cart = JSON.parse(window.localStorage.getItem(localStorageKey));
+      }
+    }
+    return cart;
+  }
 
   // Cart Logic
   const addToCart = (cartItem: ICartItem): void => {
@@ -46,6 +58,10 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     }
     setCartVisible(true);
   }; // addtoCart
+
+  React.useEffect(() => {
+    window.localStorage.setItem('alive-cart', JSON.stringify(shoppingCart));
+  }, [shoppingCart]);
 
   pageProps = {
     apiEndpoint: API_ENDPOINT,
