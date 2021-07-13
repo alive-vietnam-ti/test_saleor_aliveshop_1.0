@@ -36,9 +36,9 @@ export const Cart: React.FC<CartProps> = ({
         <hr />
         {shoppingCart.length > 0 ? (
           <ul>
-            {shoppingCart.map((item: any) => {
+            {shoppingCart.map((item: any, index: number) => {
               return (
-                <li key={item.productId}>
+                <li key={index + item.productId}>
                   <p>{item.name}</p>
                   <img src={item.imageUrl} alt={item.imageAlt} />
                   <p>Quantity {item.quantity}</p>

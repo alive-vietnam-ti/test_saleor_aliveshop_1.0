@@ -22,6 +22,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
 
   function parseShoppingCart(localStorageKey) {
     let cart = [];
+    console.log('got from local storage');
     if (typeof window !== 'undefined') {
       if (window.localStorage.getItem(localStorageKey)) {
         cart = JSON.parse(
