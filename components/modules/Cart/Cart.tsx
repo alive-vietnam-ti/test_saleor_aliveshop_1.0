@@ -23,7 +23,6 @@ export const Cart: React.FC<CartProps> = ({
   setCartVisible,
   shoppingCart,
 }): JSX.Element => {
-  const check = true;
   return (
     <>
       <div
