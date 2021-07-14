@@ -30,6 +30,10 @@ const Select = ({ attribute, handleSelectChange }) => {
 
   const handleChangeLocal = (event) => {
     const newValue = event.target.value;
+    if (!newValue) {
+      console.log('Error with variants set up');
+      return;
+    }
     const selectedOptionArr = options.filter((option) => {
       return option.id === newValue;
     });
@@ -141,7 +145,12 @@ interface IProductVariantSelectProps {
 
 const ProductVariantSelect: React.FC<
   React.PropsWithChildren<IProductVariantSelectProps>
-> = ({ productId, variants, handleSelectChange }) => {
+> = ({
+  productId,
+  variants,
+  handleSelectChange,
+  handleVariantAttributeSet,
+}) => {
   const [attributesObj, setAttributesObj] = React.useState({});
 
   function getVariantAttributeOptions(productVariants: Array<IProductVariant>) {
@@ -173,6 +182,8 @@ const ProductVariantSelect: React.FC<
 
   React.useEffect(() => {
     const attributesO = getVariantAttributeOptions(variants);
+    console.log('In Product Variant Select', attributesO);
+    handleVariantAttributeSet(attributesO);
     setAttributesObj(attributesO);
   }, [productId]);
 
@@ -305,6 +316,12 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
       errors: [],
     };
   });
+  const [numAttributeOptionsOnPage, setNumAttributeOptionsOnPage] =
+    React.useState(null);
+  const [addCartDisabled, setAddCartDisabled] = React.useState(true);
+  const productAttributesLength = product
+    ? product.variants[0].attributes.length
+    : 'no product';
 
   /* types for reduceVariantsToValueIds */
   interface IVariantIdAndValues {
@@ -377,7 +394,7 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
 
   const handleSelectChange = (e, attributeId, attributeName) => {
     const selectedValueId = e.target.value;
-    if (selectedValueId === 'initial') {
+    if (selectedValueId === 'initial' || !selectedValueId) {
       return;
     }
     const customerSelectedCpy = JSON.parse(JSON.stringify(customerSelected));
@@ -470,6 +487,35 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
     addToCart(cartItem);
   }; //handleAddToCart
 
+  const handleVariantAttributesSet = (attributesObjFromVariantSelect) => {
+    const attributeOptionsOnPage = [];
+    for (const attributeId in attributesObjFromVariantSelect) {
+      const attribute = attributesObjFromVariantSelect[attributeId];
+      const attributeOptionsFiltered = attribute.attributeOptions.filter(
+        (option) => {
+          return Object.keys(option).length > 0;
+        }
+      ); //end filter
+      if (attributeOptionsFiltered.length > 0) {
+        attributeOptionsOnPage.push(true);
+      }
+    }
+    return setNumAttributeOptionsOnPage(attributeOptionsOnPage.length);
+  };
+  React.useLayoutEffect(() => {
+    if (product.variants.length === 1) {
+      setAddCartDisabled(false);
+    } else {
+      if (numAttributeOptionsOnPage === null) {
+        return;
+      }
+      if (Object.keys(customerSelected).length < numAttributeOptionsOnPage) {
+        return;
+      }
+      setAddCartDisabled(false);
+    }
+  }, [numAttributeOptionsOnPage, customerSelected]);
+
   return (
     <>
       <div style={{ display: 'flex' }}>
@@ -482,13 +528,16 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
               productId={product.id}
               variants={product.variants}
               handleSelectChange={handleSelectChange}
+              handleVariantAttributeSet={handleVariantAttributesSet}
             />
           ) : null}
           <ProductQuantity
             handleQuantityChange={handleQuantityChange}
             quantityState={quantityState}
           />
-          <button onClick={() => handleAddToCart()}>Add to Cart</button>
+          <button onClick={() => handleAddToCart()} disabled={addCartDisabled}>
+            Add to Cart
+          </button>
         </div>
       </div>
     </>
