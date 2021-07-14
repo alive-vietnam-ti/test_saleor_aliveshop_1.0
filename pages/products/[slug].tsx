@@ -560,10 +560,10 @@ const ProductDetailPage: React.FC<React.PropsWithChildren<IPageProps>> = ({
         <div className={`${styles.productDetailContainer} container`}>
           <ErrorBoundary>
             <ProductDetailWrapper
-              {...pageProps}
               error={error}
               status={status}
               data={data}
+              {...pageProps}
             />
           </ErrorBoundary>
         </div>
