@@ -1,6 +1,5 @@
 import * as React from 'react';
 import styles from './Cart.module.scss';
-import * as sjcl from 'sjcl';
 
 export interface ICartItem {
   id: string;
@@ -34,9 +33,9 @@ export const Cart: React.FC<CartProps> = ({
         </p>
         <h2>My Cart</h2>
         <hr />
-        {shoppingCart.length > 0 ? (
-          <ul>
-            {shoppingCart.map((item: any, index: number) => {
+        <ul>
+          {shoppingCart.length > 0 ? (
+            shoppingCart.map((item: any, index: number) => {
               return (
                 <li key={index + item.productId}>
                   <p>{item.name}</p>
@@ -44,11 +43,11 @@ export const Cart: React.FC<CartProps> = ({
                   <p>Quantity {item.quantity}</p>
                 </li>
               );
-            })}
-          </ul>
-        ) : (
-          <p>No Items in Cart</p>
-        )}
+            })
+          ) : (
+            <li>No Items in Cart</li>
+          )}
+        </ul>
       </div>
       <div
         className={styles.overlay}

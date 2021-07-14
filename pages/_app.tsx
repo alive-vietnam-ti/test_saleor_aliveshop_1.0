@@ -17,6 +17,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const cartLocalStorageKey = 'alive-cart';
   const [loginOrRegister, setLoginOrRegister] = React.useState('login');
   const [cartVisible, setCartVisible] = React.useState(false);
+  const [showLoginModal, setShowLoginModal] = React.useState(false);
   const [shoppingCart, setShoppingCart] = useBase64LocalStorage(
     cartLocalStorageKey,
     []

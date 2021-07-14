@@ -191,8 +191,13 @@ const ProductVariantSelect: React.FC<
     return <></>;
   } else {
     return Object.values(attributesObj).map((attribute: any) => {
+      console.log('Attribute', attribute);
       return emptyAttributesOptionsCheck(attribute.attributeOptions) ? (
-        <Select attribute={attribute} handleSelectChange={handleSelectChange} />
+        <Select
+          attribute={attribute}
+          handleSelectChange={handleSelectChange}
+          key={attribute.attributeId}
+        />
       ) : null;
     }); //return
   }
