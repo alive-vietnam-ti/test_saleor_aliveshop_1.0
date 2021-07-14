@@ -36,11 +36,7 @@ const Select = ({ attribute, handleSelectChange }) => {
     setSelected(selectedOptionArr[0]);
   };
   return (
-    <div
-      key={attribute.attributeId}
-      id={attribute.attributeId}
-      style={{ margin: '20px 0' }}
-    >
+    <div id={attribute.attributeId} style={{ margin: '20px 0' }}>
       <label htmlFor={attribute.attributeId} style={{ display: 'block' }}>
         {attribute.name}
       </label>
@@ -191,7 +187,6 @@ const ProductVariantSelect: React.FC<
     return <></>;
   } else {
     return Object.values(attributesObj).map((attribute: any) => {
-      console.log('Attribute', attribute);
       return emptyAttributesOptionsCheck(attribute.attributeOptions) ? (
         <Select
           attribute={attribute}
@@ -293,7 +288,7 @@ interface IProductDetailProps {
   shoppingCart: Array<Record<string, unknown> | []>;
   cartVisible: boolean;
   setCartVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  handleAddToCart: (id: string) => void;
+  addToCart: (id: string) => void;
 }
 
 const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
@@ -395,7 +390,6 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
     } else {
       customerSelectedCpy[attributeId].selectedValueId = selectedValueId;
     }
-    console.log('Customer Selected in handleSelectChange', customerSelectedCpy);
     setCustomerSelected(customerSelectedCpy);
   }; // handleSelectChange
 
@@ -417,8 +411,6 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
   };
 
   const handleAddToCart = () => {
-    console.log('Quantity in handleAddtoCart', quantityState.quantity);
-    console.log('Variants in add to Cart', product.variants);
     /* check if only one variant */
     const cartItem = {
       name: '',
@@ -478,7 +470,6 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
     addToCart(cartItem);
   }; //handleAddToCart
 
-  console.log('product detail rerender');
   return (
     <>
       <div style={{ display: 'flex' }}>
@@ -516,21 +507,12 @@ interface IPageProps {
 }
 
 const ProductDetailWrapper: React.FC<React.PropsWithChildren<IPageProps>> = ({
-  slugValue,
+  error,
+  data,
+  status,
   apiEndpoint,
   ...pageProps
 }): JSX.Element => {
-  const { status, data, error, run } = useAsync({
-    status: slugValue ? 'pending' : 'idle',
-  });
-
-  React.useEffect(() => {
-    if (!slugValue) {
-      return;
-    }
-    return run(fetchProductFromSlug(apiEndpoint, slugValue));
-  }, [slugValue]);
-
   if (status === 'idle') {
     return <p>No Product </p>;
   } else if (status === 'pending') {
@@ -547,12 +529,24 @@ const ProductDetailWrapper: React.FC<React.PropsWithChildren<IPageProps>> = ({
 
 /* Page */
 
-const ProductDetailPage: React.FC<React.PropsWithChildren<IPageProps>> = (
-  pageProps
-): JSX.Element => {
+const ProductDetailPage: React.FC<React.PropsWithChildren<IPageProps>> = ({
+  apiEndpoint,
+  ...pageProps
+}): JSX.Element => {
   const router = useRouter();
   const [slugValue, setSlugValue] =
     React.useState<string | string[] | undefined>(undefined);
+  const { status, data, error, run } = useAsync({
+    status: slugValue ? 'pending' : 'idle',
+  });
+
+  React.useEffect(() => {
+    if (!slugValue) {
+      return;
+    }
+    return run(fetchProductFromSlug(apiEndpoint, slugValue));
+  }, [slugValue]);
+
   React.useEffect(() => {
     if (!router.isReady) {
       return;
@@ -561,11 +555,16 @@ const ProductDetailPage: React.FC<React.PropsWithChildren<IPageProps>> = (
   }, [router.isReady]);
   return (
     <>
-      <Head />
+      {status === 'resolved' ? <Head title={data.name} /> : <Head />}
       <main>
         <div className={`${styles.productDetailContainer} container`}>
           <ErrorBoundary>
-            <ProductDetailWrapper {...pageProps} slugValue={slugValue} />
+            <ProductDetailWrapper
+              {...pageProps}
+              error={error}
+              status={status}
+              data={data}
+            />
           </ErrorBoundary>
         </div>
       </main>

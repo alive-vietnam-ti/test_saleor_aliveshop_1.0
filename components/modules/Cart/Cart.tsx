@@ -45,7 +45,9 @@ export const Cart: React.FC<CartProps> = ({
               );
             })
           ) : (
-            <li>No Items in Cart</li>
+            <li>
+              <p>No Items in Cart</p>
+            </li>
           )}
         </ul>
       </div>
