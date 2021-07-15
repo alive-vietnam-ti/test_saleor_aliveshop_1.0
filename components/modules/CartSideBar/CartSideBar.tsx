@@ -1,5 +1,6 @@
 import * as React from 'react';
 import styles from './CartSideBar.module.scss';
+import Link from 'next/link';
 
 /* types */
 
@@ -27,6 +28,8 @@ export const CartSideBar: React.FC<CartProps> = ({
   setCartVisible,
   shoppingCart,
 }): JSX.Element => {
+  const subtotal = 0;
+  const total = 0;
   return (
     <>
       <div
@@ -34,10 +37,10 @@ export const CartSideBar: React.FC<CartProps> = ({
         style={{ width: `${cartVisible ? '300px' : '0'}` }}
       >
         <header className={styles.header}>
+          <h2 className={styles.cartSideTitle}>my cart</h2>
           <p className={styles.close} onClick={() => setCartVisible(false)}>
-            X close
+            X
           </p>
-          <h2>My Cart</h2>
         </header>
         <section className={styles.itemsWrapper}>
           <ul>
@@ -58,7 +61,32 @@ export const CartSideBar: React.FC<CartProps> = ({
             )}
           </ul>
         </section>
-        <footer className={styles.footer}>Stuff in here</footer>
+        <footer className={styles.footer}>
+          <div className={styles.finalPriceDetails}>
+            <p className={styles.finalSubtotalLabel}>subtotal</p>
+            <p className={styles.finalSubtotal}>{subtotal}</p>
+            <p className={styles.finalTotalLabel}>total</p>
+            <p className={styles.finalTotal}>{total}</p>
+          </div>
+          <div className={styles.actionButtons}>
+            <button
+              onClick={() => setCartVisible(false)}
+              className={styles.goToCartBtn}
+            >
+              <Link href="/cart">
+                <a className={styles.goToCartBtnLink}>go to cart</a>
+              </Link>
+            </button>
+            <button
+              onClick={() => setCartVisible(false)}
+              className={styles.checkOutBtn}
+            >
+              <Link href="/checkout/address">
+                <a className={styles.checkOutBtnLink}>go to checkout</a>
+              </Link>
+            </button>
+          </div>
+        </footer>
       </div>
 
       <div
