@@ -12,98 +12,7 @@ import { ICartItem } from '@/components/modules/Cart';
 import image from 'next/image';
 import { relative } from 'path';
 
-/* Select Component */
-const Select = ({ attribute, handleSelectChange }) => {
-  const [options, setOptions] = React.useState(() => {
-    /*lazy --> called only on first page render */
-    const attrsOptionsCopy = JSON.parse(
-      JSON.stringify(attribute.attributeOptions)
-    );
-    attrsOptionsCopy.unshift({
-      id: 'initial',
-      name: '--select--',
-      slug: 'initial',
-    });
-    return attrsOptionsCopy;
-  });
-  const [selected, setSelected] = React.useState(options[0]);
-
-  const handleChangeLocal = (event) => {
-    const newValue = event.target.value;
-    if (!newValue) {
-      console.log('Error with variants set up');
-      return;
-    }
-    const selectedOptionArr = options.filter((option) => {
-      return option.id === newValue;
-    });
-    setSelected(selectedOptionArr[0]);
-  };
-  return (
-    <div id={attribute.attributeId} style={{ margin: '20px 0' }}>
-      <label htmlFor={attribute.attributeId} style={{ display: 'block' }}>
-        {attribute.name}
-      </label>
-      <select
-        id={attribute.attributeId}
-        onChange={(e: any) => {
-          handleChangeLocal(e);
-          handleSelectChange(e, attribute.attributeId, attribute.name);
-        }}
-        value={selected.id}
-      >
-        {options.map((option: any) => {
-          return (
-            <option key={option.id} value={option.id}>
-              {option.name}
-            </option>
-          );
-        })}
-      </select>
-    </div>
-  );
-}; // Select
-
-/* Variant Select Component */
-const variants = [
-  {
-    id: 'UHJvZHVjdFZhcmlhbnQ6MjU2',
-    name: 'S',
-    sku: '29716755',
-    attributes: [
-      {
-        values: [],
-        attribute: {
-          name: 'Color',
-          id: 'QXR0cmlidXRlOjE0',
-          inputType: 'DROPDOWN',
-        },
-      },
-      {
-        values: [
-          {
-            slug: 's',
-            name: 'S',
-            id: 'QXR0cmlidXRlVmFsdWU6MzY=',
-          },
-        ],
-        attribute: {
-          name: 'Size',
-          id: 'QXR0cmlidXRlOjEz',
-          inputType: 'DROPDOWN',
-        },
-      },
-    ],
-    pricing: {
-      price: {
-        gross: {
-          amount: 3.5,
-        },
-        currency: 'USD',
-      },
-    },
-  },
-];
+/* Types */
 interface IProductPrice {
   gross: { amount: number };
   currency: string;
@@ -143,7 +52,65 @@ interface IProductVariantSelectProps {
   ) => void;
 }
 
-const ProductVariantSelect: React.FC<
+const Select = ({ attribute, handleSelectChange }) => {
+  const [options] = React.useState(() => {
+    /*lazy --> called only on first page render */
+    const attrsOptionsCopy = JSON.parse(
+      JSON.stringify(attribute.attributeOptions)
+    );
+    attrsOptionsCopy.unshift({
+      id: 'initial',
+      name: '--select--',
+      slug: 'initial',
+    });
+    return attrsOptionsCopy;
+  });
+  const [selected, setSelected] = React.useState(options[0]);
+
+  const handleChangeLocal = (
+    event: any,
+    attributeId: string,
+    attributeName: string
+  ) => {
+    const value = event.target.value;
+    if (!value) {
+      console.error('No variants with this option, undefinede');
+      return;
+    }
+    const selectedOptionArr = options.filter((option: any) => {
+      return option.id === value;
+    });
+    setSelected(selectedOptionArr[0]);
+    handleSelectChange(value, attributeId, attributeName);
+  };
+
+  return (
+    <div id={attribute.attributeId} style={{ margin: '20px 0' }}>
+      <label htmlFor={attribute.attributeId} style={{ display: 'block' }}>
+        {attribute.name}
+      </label>
+      <select
+        id={attribute.attributeId}
+        onChange={(event: any) => {
+          handleChangeLocal(event, attribute.attributeId, attribute.name);
+        }}
+        value={selected.id}
+      >
+        {options.map((option: any) => {
+          return (
+            <option key={option.id} value={option.id}>
+              {option.name}
+            </option>
+          );
+        })}
+      </select>
+    </div>
+  );
+}; // Select
+
+/* Variant Select Component */
+
+const ProductVariantsSelect: React.FC<
   React.PropsWithChildren<IProductVariantSelectProps>
 > = ({
   productId,
@@ -392,9 +359,12 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
     }
   }
 
-  const handleSelectChange = (e, attributeId, attributeName) => {
-    const selectedValueId = e.target.value;
-    if (selectedValueId === 'initial' || !selectedValueId) {
+  const handleSelectChange = (
+    selectedValueId: string,
+    attributeId: string,
+    attributeName: string
+  ): void => {
+    if (selectedValueId === 'initial') {
       return;
     }
     const customerSelectedCpy = JSON.parse(JSON.stringify(customerSelected));
@@ -524,7 +494,7 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
           <h1>{product.name}</h1>
           <p>{product.seoDescription}</p>
           {product.variants.length > 1 ? (
-            <ProductVariantSelect
+            <ProductVariantsSelect
               productId={product.id}
               variants={product.variants}
               handleSelectChange={handleSelectChange}
