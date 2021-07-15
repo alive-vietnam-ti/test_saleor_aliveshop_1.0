@@ -10,7 +10,7 @@ import { ShoppingBag } from '@/components/elements/ShoppingBag';
 import { UserIcon } from '@/components/elements/UserIcon';
 import { Favorite } from '@/components/elements/Favorite';
 import { LoginModal } from '@/components/modules/LoginModal';
-import { Cart, ICartItem } from '@/components/modules/Cart';
+import { CartSideBar, ICartItem } from '@/components/modules/CartSideBar';
 import { useBase64LocalStorage } from '@/utils/custom-hooks';
 
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
@@ -81,7 +81,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
         <UserIcon setShowLoginModal={setShowLoginModal} />
       </TopNav>
       <Component {...pageProps} />
-      <Cart
+      <CartSideBar
         cartVisible={cartVisible}
         setCartVisible={setCartVisible}
         shoppingCart={shoppingCart}

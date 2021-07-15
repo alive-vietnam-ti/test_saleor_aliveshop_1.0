@@ -8,7 +8,7 @@ import { ProductLoadErrorFallback } from '@/components/elements/ProductLoadError
 import styles from '@/styles/page-styles/ProductDetail.module.scss';
 import { fetchProductFromSlug } from '@/utils/api-client';
 import { useAsync } from '@/utils/custom-hooks';
-import { ICartItem } from '@/components/modules/Cart';
+import { ICartItem } from '@/components/modules/CartSideBar';
 import image from 'next/image';
 import { relative } from 'path';
 

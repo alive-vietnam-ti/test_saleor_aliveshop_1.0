@@ -1,0 +1,46 @@
+@import '@/styles/vars';
+
+.cart {
+  background-color: white;
+  top: 0;
+  right: 0;
+  position: fixed;
+  height: 100%;
+  transition: width 0.5s;
+  z-index: 2000;
+  box-shadow: -2px 0px 4px 0px #00000010;
+  display: flex;
+  flex-direction: column;
+}
+/* Header section */
+.header {
+  padding: 1rem;
+  border-bottom: 1px solid $light-grey;
+  z-index: 2001;
+  background-color: white;
+}
+.close {
+  color: black;
+  cursor: pointer;
+}
+/* Items section */
+.itemsWrapper {
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+}
+/* Footer Checkout etc section */
+.footer {
+  border-top: 1px solid $light-brand;
+  background-color: $lightest-brand;
+  padding: 1rem;
+}
+/* Overlay */
+.overlay {
+  background-color: rgba(204, 204, 204, 0.7);
+  z-index: 1999;
+  top: 0;
+  right: 0;
+  position: fixed;
+  height: 100%;
+}

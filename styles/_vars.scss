@@ -1,4 +1,8 @@
+//brand
 $brand: #00d1b3;
+//brand accents
+$lightest-brand: scale-color($brand, $lightness: 90%);
+$light-brand: scale-color($brand, $lightness: 80%);
 //grey accents
 $lightest-grey: #f1f3f5;
 $light-grey: #e0e0e0;

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styles from './ShoppingBag.module.scss';
-import { ICartItem } from '@/components/modules/Cart';
+import { ICartItem } from '@/components/modules/CartSideBar';
 
 interface IShoppingBagProps {
   shoppingCart: ICartItem[];
