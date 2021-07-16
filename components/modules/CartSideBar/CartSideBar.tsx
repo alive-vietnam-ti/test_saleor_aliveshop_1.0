@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styles from './CartSideBar.module.scss';
 import Link from 'next/link';
+import { DeleteCartItem } from '@/components/elements/DeleteCartItem';
 
 /* types */
 
@@ -19,17 +20,56 @@ type CartProps = {
   cartVisible: boolean;
   setCartVisible: React.Dispatch<React.SetStateAction<boolean>>;
   shoppingCart: any;
+  deleteFromCart: (variantId: string) => void;
 };
 /* Cart Side Bar Item Component */
+interface ICartSideBarItemProps {
+  item: any;
+  deleteFromCart: (variantId: string) => void;
+}
+const CartSideBarItem: React.FC<ICartSideBarItemProps> = ({
+  item,
+  deleteFromCart,
+}): JSX.Element => {
+  /* This code is to deal with a problem with server side rendering in Nextjs
+  Possibly not required once in production but needed during dev to get 
+  correct rendering of the list */
+  const mounted = React.useRef(false);
+  React.useEffect(() => {
+    mounted.current = true;
+  }, [item]);
+  return (
+    <>
+      {mounted.current && (
+        <li className={styles.itemWrapper}>
+          <div className={styles.imgAndDelete}>
+            <img src={item.imageUrl} alt={item.imageAlt} />
+            <DeleteCartItem
+              variantId={item.variantId}
+              deleteFromCart={deleteFromCart}
+            />
+          </div>
+          <div className={styles.details}>
+            <p>{item.name}</p>
+            <p>sku: {item.sku}</p>
+            <p>Quantity {item.quantity}</p>
+          </div>
+        </li>
+      )}
+    </>
+  );
+};
 
 /* CartSide Bar Component */
 export const CartSideBar: React.FC<CartProps> = ({
   cartVisible,
   setCartVisible,
   shoppingCart,
+  deleteFromCart,
 }): JSX.Element => {
   const subtotal = 0;
   const total = 0;
+  console.log(deleteFromCart);
   return (
     <>
       <div
@@ -47,11 +87,11 @@ export const CartSideBar: React.FC<CartProps> = ({
             {shoppingCart.length > 0 ? (
               shoppingCart.map((item: any, index: number) => {
                 return (
-                  <li key={index + item.productId}>
-                    <p>{item.name}</p>
-                    <img src={item.imageUrl} alt={item.imageAlt} />
-                    <p>Quantity {item.quantity}</p>
-                  </li>
+                  <CartSideBarItem
+                    key={index + item.productId}
+                    item={item}
+                    deleteFromCart={deleteFromCart}
+                  />
                 );
               })
             ) : (

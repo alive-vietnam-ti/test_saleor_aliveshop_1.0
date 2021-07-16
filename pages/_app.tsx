@@ -23,7 +23,21 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     []
   );
 
-  // Cart Logic
+  /*
+   * Cart Logic
+   */
+  const deleteFromCart = (variantId: string) => {
+    if (!variantId) {
+      console.error('No variantId provided');
+      return;
+    }
+    const shoppingCartCopy = JSON.parse(JSON.stringify(shoppingCart));
+    const deletedVariantCart = shoppingCartCopy.filter(
+      (item: any) => item.variantId !== variantId
+    );
+    setShoppingCart(deletedVariantCart);
+  };
+
   const addToCart = (cartItem: ICartItem): void => {
     if (!cartItem.variantId) {
       return;
@@ -49,7 +63,8 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
       shoppingCartCopy.push(cartItem);
       setShoppingCart(shoppingCartCopy);
     }
-    setCartVisible(true);
+    /*make sure that cart has updated before displaying sidebar */
+    window.setTimeout(() => setCartVisible(true), 0);
   }; // addtoCart
 
   React.useEffect(() => {
@@ -62,6 +77,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   pageProps = {
     apiEndpoint: API_ENDPOINT,
     addToCart,
+    deleteFromCart,
     shoppingCart,
     cartVisible,
     setCartVisible,
@@ -85,6 +101,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
         cartVisible={cartVisible}
         setCartVisible={setCartVisible}
         shoppingCart={shoppingCart}
+        deleteFromCart={deleteFromCart}
       />
       <LoginModal
         showLoginModal={showLoginModal}

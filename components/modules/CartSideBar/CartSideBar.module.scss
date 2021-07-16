@@ -27,7 +27,7 @@
   text-transform: uppercase;
   font-size: 1.2rem;
   font-weight: 500;
-  color: $brand;
+  color: black;
 }
 .close {
   color: $brand;
@@ -122,4 +122,17 @@
   right: 0;
   position: fixed;
   height: 100%;
+}
+
+/* CartSideBarItem styles */
+.itemWrapper {
+  padding: 1rem 0;
+  border-bottom: 1px solid $light-grey;
+  display: flex;
+}
+.imgAndDelete {
+  flex: 1;
+}
+.details {
+  flex: 2;
 }

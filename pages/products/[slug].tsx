@@ -397,10 +397,31 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
     setQuantityState(quantityStateCopy);
   };
 
+  function createCartItem(cartItem, variant, product) {
+    cartItem.sku = variant.sku;
+    if (variant.images.length > 0) {
+      cartItem.imageUrl = variant.images[0].url;
+      cartItem.imageAlt = variant.images[0].alt
+        ? variant.images[0].alt
+        : cartItem.name;
+    } else {
+      cartItem.imageUrl = product.images[0].url;
+      cartItem.imageAlt = product.images[0].alt
+        ? product.images[0].alt
+        : cartItem.name;
+    }
+    cartItem.variantId = variant.id;
+    cartItem.variantName = variant.name;
+    cartItem.quantity = quantityState.quantity;
+    cartItem.grossPrice = variant.pricing.price.gross.amount;
+    cartItem.currency = variant.pricing.price.currency;
+    return cartItem;
+  }
+
   const handleAddToCart = () => {
     /* check if only one variant */
     const cartItem = {
-      name: '',
+      name: product.name,
       slug: product.slug,
       productId: product.id,
       sku: '',
@@ -408,30 +429,10 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
       imageAlt: '',
       quantity: 0,
       variantId: '',
+      variantName: '',
       grossPrice: null,
       currency: '',
     };
-
-    function createCartItem(cartItem, variant, product) {
-      cartItem.name = variant.name ? variant.name : product.name;
-      cartItem.sku = variant.sku;
-      if (variant.images.length > 0) {
-        cartItem.imageUrl = variant.images[0].url;
-        cartItem.imageAlt = variant.images[0].alt
-          ? variant.images[0].alt
-          : cartItem.name;
-      } else {
-        cartItem.imageUrl = product.images[0].url;
-        cartItem.imageAlt = product.images[0].alt
-          ? product.images[0].alt
-          : cartItem.name;
-      }
-      cartItem.variantId = variant.id;
-      cartItem.quantity = quantityState.quantity;
-      cartItem.grossPrice = variant.pricing.price.gross.amount;
-      cartItem.currency = variant.pricing.price.currency;
-      return cartItem;
-    }
 
     if (product.variants.length === 1) {
       /* No attribute selected as only one variant */
