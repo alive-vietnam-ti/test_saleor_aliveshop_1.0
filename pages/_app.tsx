@@ -26,6 +26,36 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   /*
    * Cart Logic
    */
+  const incrementItemQuantity = (variantId: string) => {
+    if (!variantId) {
+      console.error('No variantId provided');
+      return;
+    }
+    const shoppingCartCopy = JSON.parse(JSON.stringify(shoppingCart));
+    const incrementedQuantityCart = shoppingCartCopy.map((item: any) => {
+      if (item.variantId === variantId) {
+        item.quantity += 1;
+      }
+      return item;
+    });
+    setShoppingCart(incrementedQuantityCart);
+  };
+
+  const decrementItemQuantity = (variantId: string) => {
+    if (!variantId) {
+      console.error('No variantId provided');
+      return;
+    }
+    const shoppingCartCopy = JSON.parse(JSON.stringify(shoppingCart));
+    const decrementedQuantityCart = shoppingCartCopy.map((item: any) => {
+      if (item.variantId === variantId) {
+        item.quantity -= 1;
+      }
+      return item;
+    });
+    setShoppingCart(decrementedQuantityCart);
+  };
+
   const deleteFromCart = (variantId: string) => {
     if (!variantId) {
       console.error('No variantId provided');
@@ -102,6 +132,8 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
         setCartVisible={setCartVisible}
         shoppingCart={shoppingCart}
         deleteFromCart={deleteFromCart}
+        incrementItemQuantity={incrementItemQuantity}
+        decrementItemQuantity={decrementItemQuantity}
       />
       <LoginModal
         showLoginModal={showLoginModal}

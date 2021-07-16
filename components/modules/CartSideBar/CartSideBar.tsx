@@ -21,15 +21,22 @@ type CartProps = {
   setCartVisible: React.Dispatch<React.SetStateAction<boolean>>;
   shoppingCart: any;
   deleteFromCart: (variantId: string) => void;
+  incrementItemQuantity: (variantId: string) => void;
+  decrementItemQuantity: (variantId: string) => void;
 };
+
 /* Cart Side Bar Item Component */
 interface ICartSideBarItemProps {
   item: any;
   deleteFromCart: (variantId: string) => void;
+  incrementItemQuantity: (variantId: string) => void;
+  decrementItemQuantity: (variantId: string) => void;
 }
 const CartSideBarItem: React.FC<ICartSideBarItemProps> = ({
   item,
   deleteFromCart,
+  incrementItemQuantity,
+  decrementItemQuantity,
 }): JSX.Element => {
   /* This code is to deal with a problem with server side rendering in Nextjs
   Possibly not required once in production but needed during dev to get 
@@ -52,7 +59,22 @@ const CartSideBarItem: React.FC<ICartSideBarItemProps> = ({
           <div className={styles.details}>
             <p>{item.name}</p>
             <p>sku: {item.sku}</p>
-            <p>Quantity {item.quantity}</p>
+            <div className={styles.alterQuantity}>
+              <p className={styles.alterQuantityLabel}>Quantity</p>
+              <button
+                onClick={() => decrementItemQuantity(item.variantId)}
+                className={styles.changeQuantityBtn}
+              >
+                -
+              </button>
+              <p>{item.quantity}</p>
+              <button
+                onClick={() => incrementItemQuantity(item.variantId)}
+                className={styles.changeQuantityBtn}
+              >
+                +
+              </button>
+            </div>
           </div>
         </li>
       )}
@@ -66,10 +88,11 @@ export const CartSideBar: React.FC<CartProps> = ({
   setCartVisible,
   shoppingCart,
   deleteFromCart,
+  incrementItemQuantity,
+  decrementItemQuantity,
 }): JSX.Element => {
   const subtotal = 0;
   const total = 0;
-  console.log(deleteFromCart);
   return (
     <>
       <div
@@ -91,6 +114,8 @@ export const CartSideBar: React.FC<CartProps> = ({
                     key={index + item.productId}
                     item={item}
                     deleteFromCart={deleteFromCart}
+                    incrementItemQuantity={incrementItemQuantity}
+                    decrementItemQuantity={decrementItemQuantity}
                   />
                 );
               })
