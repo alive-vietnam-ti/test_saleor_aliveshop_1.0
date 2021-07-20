@@ -22,6 +22,10 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     cartLocalStorageKey,
     []
   );
+  const [productsFav, setProductsFav] = useBase64LocalStorage(
+    'productsFav',
+    []
+  );
 
   /*
    * Cart Logic
@@ -97,6 +101,18 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     window.setTimeout(() => setCartVisible(true), 0);
   }; // addtoCart
 
+  const toggleProductInFav = (productId:string) => {
+    const productsFavCopy:string[] = [...productsFav];
+    const index:number = productsFavCopy.indexOf(productId);
+    if(index === -1) {
+      productsFavCopy.push(productId);
+      return setProductsFav(productsFavCopy);
+    } else {
+      productsFavCopy.splice(index, 1);
+      return setProductsFav(productsFavCopy);
+    }
+  };
+
   React.useEffect(() => {
     window.localStorage.setItem(
       cartLocalStorageKey,
@@ -104,9 +120,18 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     );
   }, [shoppingCart]);
 
+  React.useEffect(() => {
+    window.localStorage.setItem(
+      'productsFav',
+      window.btoa(JSON.stringify(productsFav))
+    );
+  }, [productsFav]);
+
   pageProps = {
     apiEndpoint: API_ENDPOINT,
     addToCart,
+    toggleProductInFav,
+    productsFav,
     deleteFromCart,
     shoppingCart,
     cartVisible,
@@ -123,7 +148,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
           setCartVisible={setCartVisible}
           shoppingCart={shoppingCart}
         />
-        <Favorite />
+        <Favorite productsFav={productsFav} />
         <UserIcon setShowLoginModal={setShowLoginModal} />
       </TopNav>
       <Component {...pageProps} />

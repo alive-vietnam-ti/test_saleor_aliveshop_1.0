@@ -267,11 +267,15 @@ interface IProductDetailProps {
   cartVisible: boolean;
   setCartVisible: React.Dispatch<React.SetStateAction<boolean>>;
   addToCart: (id: string) => void;
+  toggleProductInFav: (id: string) => void;
+  productsFav: string[];
 }
 
 const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
   product,
   addToCart,
+  productsFav,
+  toggleProductInFav,
   ...pageProps
 }): JSX.Element => {
   const defaultQuantity = 1;
@@ -286,6 +290,7 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
   const [numAttributeOptionsOnPage, setNumAttributeOptionsOnPage] =
     React.useState(null);
   const [addCartDisabled, setAddCartDisabled] = React.useState(true);
+  const [isFav, setIsFav] = React.useState(false);
   const productAttributesLength = product
     ? product.variants[0].attributes.length
     : 'no product';
@@ -487,6 +492,21 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
     }
   }, [numAttributeOptionsOnPage, customerSelected]);
 
+  React.useEffect(() => {
+    const productsFavCopy:string[] = [...productsFav];
+    const index:number = productsFavCopy.indexOf(product.id);
+    if(index !== -1) {
+      setIsFav(true);
+    } else {
+      setIsFav(false);
+    }
+  }, [productsFav]);
+
+  const handleAddToFav = (e:any) => {
+    e.preventDefault();
+    toggleProductInFav(product.id);
+  }
+
   return (
     <>
       <div style={{ display: 'flex' }}>
@@ -509,6 +529,9 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
           <button onClick={() => handleAddToCart()} disabled={addCartDisabled}>
             Add to Cart
           </button>
+          <button onClick={handleAddToFav}>
+            { isFav ? `Remove from favorites` : 'Favorite' }
+          </button>
         </div>
       </div>
     </>
@@ -524,6 +547,7 @@ interface IPageProps {
   cartVisible: boolean;
   setCartVisible: React.Dispatch<React.SetStateAction<boolean>>;
   addToCart: () => void;
+  addToFav: () => void;
 }
 
 const ProductDetailWrapper: React.FC<React.PropsWithChildren<IPageProps>> = ({
