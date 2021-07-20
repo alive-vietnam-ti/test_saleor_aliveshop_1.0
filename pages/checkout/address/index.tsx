@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Head } from '@/components/modules/Head';
 import { Footer } from '@/components/modules/Footer';
+import { AddressForm } from '@/components/modules/AddressForm';
 import { FooterBranding } from '@/components/elements/FooterBranding';
 import styles from '@/styles/page-styles/Address.module.scss';
 
@@ -20,7 +21,8 @@ const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = (
       <Head />
       <main>
         <div className={`${styles.addressContainer} container`}>
-          <h1>Checkout address page</h1>
+          <h1>Checkout address hi</h1>
+          <AddressForm />
         </div>
       </main>
       <Footer>
