@@ -1,0 +1,19 @@
+@import '@/styles/vars';
+
+.modalClose {
+  display: flex;
+  justify-content: flex-end;
+}
+.modalCloseBtn {
+  border: none;
+  background-color: transparent;
+  font-size: 1rem;
+}
+.changeFormLink {
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+.changeFormLink:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
