@@ -11,12 +11,14 @@ import { UserIcon } from '@/components/elements/UserIcon';
 import { Favorite } from '@/components/elements/Favorite';
 import { LoginModal } from '@/components/modules/LoginModal';
 import { CartSideBar, ICartItem } from '@/components/modules/CartSideBar';
+import { FavSideBar, IFavItem } from '@/components/modules/FavSideBar';
 import { useBase64LocalStorage } from '@/utils/custom-hooks';
 
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const cartLocalStorageKey = 'alive-cart';
   const [loginOrRegister, setLoginOrRegister] = React.useState('login');
   const [cartVisible, setCartVisible] = React.useState(false);
+  const [favVisible, setFavVisible] = React.useState(false);
   const [showLoginModal, setShowLoginModal] = React.useState(false);
   const [shoppingCart, setShoppingCart] = useBase64LocalStorage(
     cartLocalStorageKey,
@@ -136,6 +138,8 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     shoppingCart,
     cartVisible,
     setCartVisible,
+    favVisible,
+    setFavVisible,
     ...pageProps,
   };
 
@@ -148,7 +152,10 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
           setCartVisible={setCartVisible}
           shoppingCart={shoppingCart}
         />
-        <Favorite productsFav={productsFav} />
+        <Favorite
+          setFavVisible={setFavVisible}
+          productsFav={productsFav}
+        />
         <UserIcon setShowLoginModal={setShowLoginModal} />
       </TopNav>
       <Component {...pageProps} />
@@ -159,6 +166,11 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
         deleteFromCart={deleteFromCart}
         incrementItemQuantity={incrementItemQuantity}
         decrementItemQuantity={decrementItemQuantity}
+      />
+      <FavSideBar
+        favVisible={favVisible}
+        setFavVisible={setFavVisible}
+        productsFav={productsFav}
       />
       <LoginModal
         showLoginModal={showLoginModal}
