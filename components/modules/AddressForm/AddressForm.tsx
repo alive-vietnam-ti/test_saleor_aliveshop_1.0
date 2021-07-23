@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Select from 'react-select';
 import styles from './AddressForm.module.scss';
 import { countries } from '@/utils/countries';
 
@@ -176,7 +177,7 @@ const Input = ({
             {options.map((option: any) => {
               return (
                 <option key={option.value} value={option.value}>
-                  {option.name}
+                  {option.label}
                 </option>
               );
             })}
@@ -200,7 +201,7 @@ const Input = ({
         </div>
       );
     default:
-      throw new Error('invalide type provided to Input component');
+      throw new Error('invalid type provided to Input component');
   }
 };
 
