@@ -21,7 +21,7 @@ const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = (
       <Head />
       <main>
         <div className={`${styles.addressContainer} container`}>
-          <h1>Checkout address hi</h1>
+          <h1>Checkout address </h1>
           <AddressForm />
         </div>
       </main>
