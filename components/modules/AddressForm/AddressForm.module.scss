@@ -1,19 +1,36 @@
 @import '@/styles/vars';
 
-.modalClose {
+.form {
   display: flex;
-  justify-content: flex-end;
+  flex-flow: row wrap;
 }
-.modalCloseBtn {
+
+.formGroup {
+  border: $grey solid 1px;
+  margin: 0.8rem 0;
+  min-width: 50%;
+  min-height: 3rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.formGroup:nth-child(odd) {
+  margin-right: 1.6rem;
+  min-width: calc(50% - 1.6rem);
+}
+
+.label {
+  display: block;
+  position: absolute;
+  background-color: white;
+  padding: 0 5px;
+  top: -10px;
+  left: 10px;
+  text-transform: capitalize;
+}
+.input {
   border: none;
-  background-color: transparent;
-  font-size: 1rem;
-}
-.changeFormLink {
-  display: inline-block;
-  margin-left: 0.5rem;
-}
-.changeFormLink:hover {
-  text-decoration: underline;
-  cursor: pointer;
+  outline: none;
+  width: 100%;
 }

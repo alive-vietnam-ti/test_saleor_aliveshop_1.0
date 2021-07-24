@@ -30,6 +30,7 @@ const flowValidation = (...args: any[]) => args.reduce(flow, (x: any) => x);
 
 const shippingFormTemplate = {
   formTitle: 'Shipping Address',
+  formId: 'shipping-address',
   fields: [
     {
       type: 'text',
@@ -107,6 +108,7 @@ const shippingFormTemplate = {
 
 const billingFormTemplate = {
   formTitle: 'Billing Address',
+  formId: 'billing-address',
   fields: [
     {
       type: 'text',
@@ -177,6 +179,7 @@ const billingFormTemplate = {
 
 /* Input Component */
 const Input = ({
+  formId,
   type,
   name,
   label,
@@ -185,6 +188,7 @@ const Input = ({
   options,
   validators,
 }: {
+  formId: string;
   type: string;
   name: string;
   label: string;
@@ -205,10 +209,13 @@ const Input = ({
   switch (type) {
     case 'text':
       return (
-        <div key={name}>
-          <label htmlFor={name}>{label}</label>
+        <div key={name} className={styles.formGroup}>
+          <label className={styles.label} htmlFor={`${formId}-${name}`}>
+            {label}
+          </label>
           <input
-            id={name}
+            className={styles.input}
+            id={`${formId}-${name}`}
             name={name}
             type="text"
             onChange={(event) => setValue(event.currentTarget.value)}
@@ -235,10 +242,13 @@ const Input = ({
       );
     case 'select':
       return (
-        <div key={name}>
-          <label htmlFor={name}>{label}</label>
+        <div key={name} className={styles.formGroup}>
+          <label className={styles.label} htmlFor={`${formId}-${name}`}>
+            {label}
+          </label>
           <select
-            id={name}
+            className={styles.input}
+            id={`${formId}-${name}`}
             name={name}
             onChange={(event) => setValue(event.currentTarget.value)}
             onBlur={() => setTouched(true)}
@@ -312,11 +322,12 @@ export const AddressForm: React.FC = (): JSX.Element => {
   return (
     <div>
       <h2>{shippingFormTemplate.formTitle}</h2>
-      <form noValidate ref={shippingForm}>
+      <form className={styles.form} noValidate ref={shippingForm}>
         {shippingFormTemplate.fields.map((field) => {
           return (
             <Input
               key={field.name}
+              formId={shippingFormTemplate.formId}
               type={field.type}
               name={field.name}
               label={field.label}
@@ -341,11 +352,12 @@ export const AddressForm: React.FC = (): JSX.Element => {
       </div>
       <div>
         {billingSameAsShipping ? null : (
-          <form noValidate ref={billingForm}>
+          <form className={styles.form} noValidate ref={billingForm}>
             {billingFormTemplate.fields.map((field) => {
               return (
                 <Input
                   key={field.name}
+                  formId={billingFormTemplate.formId}
                   type={field.type}
                   name={field.name}
                   label={field.label}
