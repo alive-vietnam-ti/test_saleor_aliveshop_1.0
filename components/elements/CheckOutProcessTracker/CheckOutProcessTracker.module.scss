@@ -23,14 +23,24 @@
   border-top: solid black 1px;
   position: absolute;
 }
-.point:before {
+.inactive:before {
   content: ' ';
   width: 15px;
   height: 15px;
-  background-color: black;
+  background-color: white;
   position: absolute;
   top: -7px;
-  border: 2px black solid;
+  border: 3px black solid;
+  border-radius: 50%;
+}
+.active:before {
+  content: ' ';
+  width: 15px;
+  height: 15px;
+  background-color: red;
+  position: absolute;
+  top: -7px;
+  border: 3px black solid;
   border-radius: 50%;
 }
 .text {
