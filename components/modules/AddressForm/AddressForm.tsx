@@ -29,7 +29,8 @@ const flowValidation = (...args: any[]) => args.reduce(flow, (x: any) => x);
 /* formTemplate Object */
 
 const shippingFormTemplate = {
-  formTitle: 'Shipping',
+  formTitle: 'Shipping Address',
+  formId: 'shipping-address',
   fields: [
     {
       type: 'text',
@@ -105,8 +106,80 @@ const shippingFormTemplate = {
   ],
 };
 
+const billingFormTemplate = {
+  formTitle: 'Billing Address',
+  formId: 'billing-address',
+  fields: [
+    {
+      type: 'text',
+      name: 'lastName',
+      label: 'family name',
+      required: true,
+      validators: flowValidation(requiredValidator),
+    },
+    {
+      type: 'text',
+      name: 'firstName',
+      label: 'given name',
+      required: true,
+      validators: flowValidation(requiredValidator),
+    },
+    {
+      type: 'text',
+      name: 'companyName',
+      label: 'company name',
+      required: false,
+      validators: flowValidation(noValidationValidator),
+    },
+    {
+      type: 'text',
+      name: 'phoneNumber',
+      label: ' phone number',
+      required: false,
+      validators: flowValidation(noValidationValidator),
+    },
+    {
+      type: 'text',
+      name: 'streetAddress1',
+      label: 'street address 1',
+      required: true,
+      validators: flowValidation(requiredValidator),
+    },
+    {
+      type: 'text',
+      name: 'streetAddress2',
+      label: 'street address 2',
+      required: false,
+      validators: flowValidation(noValidationValidator),
+    },
+    {
+      type: 'text',
+      name: 'city',
+      label: 'village, town or city',
+      required: true,
+      validators: flowValidation(requiredValidator),
+    },
+    {
+      type: 'text',
+      name: 'countryArea',
+      label: 'county, prefecture, state or province',
+      required: true,
+      validators: flowValidation(requiredValidator),
+    },
+    {
+      type: 'select',
+      name: 'country',
+      label: 'county, prefecture, state or province',
+      required: true,
+      options: countries,
+      validators: flowValidation(requiredValidator),
+    },
+  ],
+};
+
 /* Input Component */
 const Input = ({
+  formId,
   type,
   name,
   label,
@@ -115,6 +188,7 @@ const Input = ({
   options,
   validators,
 }: {
+  formId: string;
   type: string;
   name: string;
   label: string;
@@ -129,16 +203,19 @@ const Input = ({
   const displayErrorMessage = (wasSubmitted || touched) && errors.length > 0;
 
   React.useEffect(() => {
-    console.log('input use effect triggered');
+    console.log(`input use effect triggered for ${name}`);
   }, [errors]);
 
   switch (type) {
     case 'text':
       return (
-        <div key={name}>
-          <label htmlFor={name}>{label}</label>
+        <div key={name} className={styles.formGroup}>
+          <label className={styles.label} htmlFor={`${formId}-${name}`}>
+            {label}
+          </label>
           <input
-            id={name}
+            className={styles.input}
+            id={`${formId}-${name}`}
             name={name}
             type="text"
             onChange={(event) => setValue(event.currentTarget.value)}
@@ -165,10 +242,13 @@ const Input = ({
       );
     case 'select':
       return (
-        <div key={name}>
-          <label htmlFor={name}>{label}</label>
+        <div key={name} className={styles.formGroup}>
+          <label className={styles.label} htmlFor={`${formId}-${name}`}>
+            {label}
+          </label>
           <select
-            id={name}
+            className={styles.input}
+            id={`${formId}-${name}`}
             name={name}
             onChange={(event) => setValue(event.currentTarget.value)}
             onBlur={() => setTouched(true)}
@@ -206,21 +286,48 @@ const Input = ({
 };
 
 export const AddressForm: React.FC = (): JSX.Element => {
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const fieldValues = Object.fromEntries(formData.entries());
-    console.log(fieldValues);
-  }
   const [wasSubmitted, setWasSubmitted] = React.useState(false);
+  const [billingSameAsShipping, setBillingSameAsShipping] =
+    React.useState(false);
+  const shippingForm = React.useRef(null);
+  const billingForm = React.useRef(null);
+
+  function handleContinueToShipping(event: any) {
+    const shippingFormData = new FormData(shippingForm.current);
+    const shippingFieldValues = Object.fromEntries(shippingFormData.entries());
+
+    let billingFieldValues: any;
+    if (billingSameAsShipping) {
+      billingFieldValues = { ...shippingFieldValues };
+      delete billingFieldValues['email'];
+    } else {
+      const billingFormData = new FormData(billingForm.current);
+      billingFieldValues = Object.fromEntries(billingFormData.entries());
+    }
+
+    /* Notes 
+    - Need to handle validation here as well as in Input 
+    - Need to build checkout object and submiti it to the server
+    - Checkout obect  state should be held in _app.tsx
+    - Need to handle backend server errros
+    */
+    console.log('Shipping Form data', shippingFieldValues);
+    console.log('Billing Form Data', billingFieldValues);
+  }
+
+  function handleSameAsShipping() {
+    setBillingSameAsShipping(!billingSameAsShipping);
+  }
+
   return (
     <div>
       <h2>{shippingFormTemplate.formTitle}</h2>
-      <form noValidate onSubmit={handleSubmit}>
+      <form className={styles.form} noValidate ref={shippingForm}>
         {shippingFormTemplate.fields.map((field) => {
           return (
             <Input
               key={field.name}
+              formId={shippingFormTemplate.formId}
               type={field.type}
               name={field.name}
               label={field.label}
@@ -229,8 +336,40 @@ export const AddressForm: React.FC = (): JSX.Element => {
             />
           );
         })}
-        <button type="submit">Submit</button>
       </form>
+      <hr />
+      <h2>{billingFormTemplate.formTitle}</h2>
+      <div>
+        <input
+          onChange={handleSameAsShipping}
+          type="checkbox"
+          checked={billingSameAsShipping}
+          id="billing-same-as-shipping"
+        />
+        <label htmlFor="billing-same-as-shipping">
+          Billing Address Same as Shipping?
+        </label>
+      </div>
+      <div>
+        {billingSameAsShipping ? null : (
+          <form className={styles.form} noValidate ref={billingForm}>
+            {billingFormTemplate.fields.map((field) => {
+              return (
+                <Input
+                  key={field.name}
+                  formId={billingFormTemplate.formId}
+                  type={field.type}
+                  name={field.name}
+                  label={field.label}
+                  validators={field.validators}
+                  options={field.options}
+                />
+              );
+            })}
+          </form>
+        )}
+      </div>
+      <button onClick={handleContinueToShipping}>Continue to Shipping</button>
     </div>
   );
 };
