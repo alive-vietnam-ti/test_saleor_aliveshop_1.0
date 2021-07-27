@@ -3,6 +3,7 @@ import { Head } from '@/components/modules/Head';
 import { Footer } from '@/components/modules/Footer';
 import { AddressForm } from '@/components/modules/AddressForm';
 import { FooterBranding } from '@/components/elements/FooterBranding';
+import { CheckOutProcessTracker } from '@/components/elements/CheckOutProcessTracker';
 import styles from '@/styles/page-styles/Address.module.scss';
 import { LoginRegistrationForm } from '@/components/modules/LoginRegistrationForm';
 
@@ -28,7 +29,7 @@ function customerStatusReducer(state, action) {
 }
 
 /* AnonOrLoggin */
-const AnonOrLoggin: React.FC<{ customerStatusDispatch: React.Dispatch<any> }> =
+const AnonOrLogin: React.FC<{ customerStatusDispatch: React.Dispatch<any> }> =
   ({ customerStatusDispatch }) => {
     return (
       <div
@@ -66,18 +67,19 @@ const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = (
 
   if (status === 'undecided') {
     addressPageContent = (
-      <AnonOrLoggin customerStatusDispatch={customerStatusDispatch} />
+      <AnonOrLogin customerStatusDispatch={customerStatusDispatch} />
     );
   } else if (status === 'anon') {
     addressPageContent = (
       <>
-        <h1>Checkout address </h1>
+        <CheckOutProcessTracker />
         <AddressForm />
       </>
     );
   } else if (status === 'loggedin') {
     addressPageContent = (
       <>
+        <CheckOutProcessTracker />
         <h1>Welcome Back Username here </h1>
         <p>Component for Logged in User Here</p>
       </>

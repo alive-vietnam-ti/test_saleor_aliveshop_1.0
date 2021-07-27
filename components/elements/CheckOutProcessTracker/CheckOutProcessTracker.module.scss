@@ -1,0 +1,38 @@
+@import '@/styles/vars';
+
+.checkoutProcessTracker {
+  width: 100%;
+  min-height: 10rem;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+}
+.timeline {
+  width: 100%;
+  display: flex;
+  position: relative;
+}
+.point {
+  width: 25%;
+  display: flex;
+  justify-content: center;
+}
+.timeline:before {
+  content: '';
+  width: 100%;
+  border-top: solid black 1px;
+  position: absolute;
+}
+.point:before {
+  content: ' ';
+  width: 15px;
+  height: 15px;
+  background-color: black;
+  position: absolute;
+  top: -7px;
+  border: 2px black solid;
+  border-radius: 50%;
+}
+.text {
+  padding-top: 1.4rem;
+}
