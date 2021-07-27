@@ -103,16 +103,19 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     window.setTimeout(() => setCartVisible(true), 0);
   }; // addtoCart
 
-  const toggleProductInFav = (productId:string) => {
-    const productsFavCopy:string[] = [...productsFav];
-    const index:number = productsFavCopy.indexOf(productId);
-    if(index === -1) {
-      productsFavCopy.push(productId);
-      return setProductsFav(productsFavCopy);
+  const toggleProductInFav = (favItem: IFavItem) => {
+    const productsFavCopy:any[] = [...productsFav];
+    
+    if(productsFavCopy.length === 0) {
+      productsFavCopy.push(favItem);
     } else {
-      productsFavCopy.splice(index, 1);
-      return setProductsFav(productsFavCopy);
+      const index:any = productsFavCopy.find((e, index) => {
+        return e.id === favItem.id;
+      });
+      if(productsFavCopy.indexOf(index) > -1) productsFavCopy.splice(productsFavCopy.indexOf(index), 1);
+      else productsFavCopy.push(favItem);
     }
+    return setProductsFav(productsFavCopy);
   };
 
   React.useEffect(() => {
