@@ -59,9 +59,7 @@ const AnonOrLogin: React.FC<{ customerStatusDispatch: React.Dispatch<any> }> =
 const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = (
   pageProps
 ): JSX.Element => {
-  const [checkoutPageName, setCheckoutPageName] =
-    React.useState<string | undefined>('');
-  const router = useRouter();
+  const checkoutPageName = 'address';
   const [customerStatus, customerStatusDispatch] = React.useReducer(
     customerStatusReducer,
     { status: 'undecided', userEmail: '' }
@@ -83,7 +81,7 @@ const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = (
   } else if (status === 'loggedin') {
     addressPageContent = (
       <>
-        <CheckOutProcessTracker />
+        <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
         <h1>Welcome Back Username here </h1>
         <p>Component for Logged in User Here</p>
       </>
@@ -92,20 +90,6 @@ const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = (
     addressPageContent = <p>Error</p>;
   }
 
-  React.useEffect(() => {
-    if (!router.isReady) {
-      return;
-    }
-    const pageName = router.pathname.split('/').pop();
-    setCheckoutPageName(pageName);
-  }, [router.isReady]);
-
-  React.useEffect(() => {
-    if (!checkoutPageName) {
-      return;
-    }
-    console.log('page Name', checkoutPageName);
-  }, [checkoutPageName]);
   return (
     <>
       <Head />
