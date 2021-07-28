@@ -11,37 +11,35 @@
   width: 100%;
   display: flex;
   position: relative;
+  &:before {
+    content: '';
+    width: 100%;
+    border-top: solid black 1px;
+    position: absolute;
+  }
 }
 .point {
   width: 25%;
   display: flex;
   justify-content: center;
+  &:before {
+    content: '';
+    width: 15px;
+    height: 15px;
+    background-color: $grey;
+    position: absolute;
+    top: -7px;
+    border: 3px black solid;
+    border-radius: 50%;
+  }
 }
-.timeline:before {
-  content: '';
-  width: 100%;
-  border-top: solid black 1px;
-  position: absolute;
-}
-.inactive:before {
-  content: ' ';
-  width: 15px;
-  height: 15px;
-  background-color: white;
-  position: absolute;
-  top: -7px;
-  border: 3px black solid;
-  border-radius: 50%;
-}
-.active:before {
-  content: ' ';
-  width: 15px;
-  height: 15px;
-  background-color: red;
-  position: absolute;
-  top: -7px;
-  border: 3px black solid;
-  border-radius: 50%;
+.active {
+  &:before {
+    background-color: red;
+  }
+  & ~ .point:before {
+    background-color: white;
+  }
 }
 .text {
   padding-top: 1.4rem;
