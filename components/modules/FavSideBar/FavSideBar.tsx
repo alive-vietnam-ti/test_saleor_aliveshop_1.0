@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styles from '../CartSideBar/CartSideBar.module.scss';
 import Link from 'next/link';
-
+import { useRouter } from 'next/router';
 /* types */
 
 export interface IFavItem {
@@ -24,24 +24,29 @@ interface IFavSideBarItemProps {
 const FavSideBarItem: React.FC<IFavSideBarItemProps> = ({
   item,
 }): JSX.Element => {
+  const [itemPath, setItemPath] = React.useState('');
   const mounted = React.useRef(false);
+  const router = useRouter();
+
   React.useEffect(() => {
+    if (!item) {
+      return;
+    }
     mounted.current = true;
+    setItemPath(`/products/${encodeURIComponent(item.slug)}`);
   }, [item]);
   return (
     <>
       {mounted.current && (
         <li>
-          <Link href={`/products/${encodeURIComponent(item.slug)}`}>
-            <a className={styles.itemWrapper}>
-              <div className={styles.imgAndDelete}>
-                <img src={item.thumbnailUrl} alt={item.thumbnailAlt} />
-              </div>
-              <div className={styles.details}>
-                <p>{item.name}</p>
-              </div>
-            </a>
-          </Link>
+          <a href={itemPath} className={styles.itemWrapper}>
+            <div className={styles.imgAndDelete}>
+              <img src={item.thumbnailUrl} alt={item.thumbnailAlt} />
+            </div>
+            <div className={styles.details}>
+              <p>{item.name}</p>
+            </div>
+          </a>
         </li>
       )}
     </>
@@ -69,12 +74,7 @@ export const FavSideBar: React.FC<FavProps> = ({
           <ul>
             {productsFav.length > 0 ? (
               productsFav.map((item: any, index: number) => {
-                return (
-                  <FavSideBarItem
-                    key={index + item.id}
-                    item={item}
-                  />
-                );
+                return <FavSideBarItem key={index + item.id} item={item} />;
               })
             ) : (
               <li>
