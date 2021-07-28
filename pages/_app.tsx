@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Link from 'next/link';
 import { API_ENDPOINT } from '../settings/dev_settings';
 import '../styles/global.scss';
 import '@reach/dialog/styles.css';
@@ -104,15 +105,16 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   }; // addtoCart
 
   const toggleProductInFav = (favItem: IFavItem) => {
-    const productsFavCopy:any[] = [...productsFav];
-    
-    if(productsFavCopy.length === 0) {
+    const productsFavCopy: any[] = [...productsFav];
+
+    if (productsFavCopy.length === 0) {
       productsFavCopy.push(favItem);
     } else {
-      const index:any = productsFavCopy.find((e, index) => {
+      const index: any = productsFavCopy.find((e, index) => {
         return e.id === favItem.id;
       });
-      if(productsFavCopy.indexOf(index) > -1) productsFavCopy.splice(productsFavCopy.indexOf(index), 1);
+      if (productsFavCopy.indexOf(index) > -1)
+        productsFavCopy.splice(productsFavCopy.indexOf(index), 1);
       else productsFavCopy.push(favItem);
     }
     return setProductsFav(productsFavCopy);
@@ -149,16 +151,17 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   return (
     <>
       <TopNav>
-        <Logo />
+        <Link href="/">
+          <a>
+            <Logo />
+          </a>
+        </Link>
         <SearchBar />
         <ShoppingBag
           setCartVisible={setCartVisible}
           shoppingCart={shoppingCart}
         />
-        <Favorite
-          setFavVisible={setFavVisible}
-          productsFav={productsFav}
-        />
+        <Favorite setFavVisible={setFavVisible} productsFav={productsFav} />
         <UserIcon setShowLoginModal={setShowLoginModal} />
       </TopNav>
       <Component {...pageProps} />
