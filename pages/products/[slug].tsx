@@ -494,19 +494,25 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
 
   React.useEffect(() => {
     const productsFavCopy:string[] = [...productsFav];
-    const index:number = productsFavCopy.indexOf(product.id);
-    if(index !== -1) {
-      setIsFav(true);
-    } else {
-      setIsFav(false);
-    }
+    const index:any = productsFavCopy.find((e, index) => {
+      return e.id === product.id;
+    });
+    if(productsFavCopy.indexOf(index) > -1) setIsFav(true);
+    else setIsFav(false);
   }, [productsFav]);
 
   const handleAddToFav = (e:any) => {
     e.preventDefault();
-    toggleProductInFav(product.id);
+    const favItem = {
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      thumbnailUrl: product.images[0].url,
+      thumbnailAlt: product.images[0].alt,
+    };
+    toggleProductInFav(favItem);
   }
-
+  
   return (
     <>
       <div style={{ display: 'flex' }}>
