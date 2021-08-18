@@ -295,11 +295,12 @@ export const AddressForm: React.FC = (): JSX.Element => {
   function handleContinueToShipping(event: any) {
     const shippingFormData = new FormData(shippingForm.current);
     const shippingFieldValues = Object.fromEntries(shippingFormData.entries());
+    const customerEmail = shippingFieldValues.email;
+    delete shippingFieldValues['email'];
 
     let billingFieldValues: any;
     if (billingSameAsShipping) {
       billingFieldValues = { ...shippingFieldValues };
-      delete billingFieldValues['email'];
     } else {
       const billingFormData = new FormData(billingForm.current);
       billingFieldValues = Object.fromEntries(billingFormData.entries());
@@ -311,8 +312,13 @@ export const AddressForm: React.FC = (): JSX.Element => {
     - Checkout obect  state should be held in _app.tsx
     - Need to handle backend server errros
     */
-    console.log('Shipping Form data', shippingFieldValues);
-    console.log('Billing Form Data', billingFieldValues);
+    const preCheckoutCreateValues = {
+      email: customerEmail,
+      lines: [],
+      shippingAdress: shippingFieldValues,
+      billingAddress: billingFieldValues,
+    };
+    console.log('preCheckoutCreateValues', preCheckoutCreateValues);
   }
 
   function handleSameAsShipping() {

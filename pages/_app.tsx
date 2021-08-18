@@ -17,6 +17,7 @@ import { useBase64LocalStorage } from '@/utils/custom-hooks';
 
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const cartLocalStorageKey = 'alive-cart';
+  const checkoutProcessKey = 'checkout';
   const [loginOrRegister, setLoginOrRegister] = React.useState('login');
   const [cartVisible, setCartVisible] = React.useState(false);
   const [favVisible, setFavVisible] = React.useState(false);
@@ -29,6 +30,21 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     'productsFav',
     []
   );
+  const [checkoutProcess, setCheckoutProcess] = useBase64LocalStorage(
+    checkoutProcessKey,
+    {
+      checkoutCreateResult: null,
+      checkoutId: null,
+      isShippingRequired: false,
+      checkoutShippingMethodUpdateResult: null,
+      checkoutPaymentCreateResult: null,
+      checkoutCompleteResult: null,
+    }
+  );
+
+  /*
+   * Checkout process logic
+   */
 
   /*
    * Cart Logic
@@ -119,6 +135,13 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     }
     return setProductsFav(productsFavCopy);
   };
+
+  React.useEffect(() => {
+    window.localStorage.setItem(
+      checkoutProcessKey,
+      window.btoa(JSON.stringify(checkoutProcess))
+    );
+  }, [checkoutProcess]);
 
   React.useEffect(() => {
     window.localStorage.setItem(
