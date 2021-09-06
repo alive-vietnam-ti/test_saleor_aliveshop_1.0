@@ -9,7 +9,7 @@ describe('ShoppingBag', () => {
     const bagItemsCount = container.querySelector('p')?.innerHTML;
     expect(bagItemsCount).toBe('2');
   });
-  test('Clicking care will setCartVisible to true', async () => {
+  test('Clicking cart will setCartVisible to true', async () => {
     const mockShopCart = [{ quantity: 2 }];
     const setCartVisibleMock = jest.fn();
     const { container } = render(
