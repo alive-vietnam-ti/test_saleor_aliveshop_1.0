@@ -56,9 +56,11 @@ const AnonOrLogin: React.FC<{ customerStatusDispatch: React.Dispatch<any> }> =
     );
   };
 
-const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = (
-  pageProps
-): JSX.Element => {
+const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = ({
+  apiEndpoint,
+  shoppingCart,
+  ...pageProps
+}): JSX.Element => {
   const checkoutPageName = 'address';
   const [customerStatus, customerStatusDispatch] = React.useReducer(
     customerStatusReducer,
@@ -75,7 +77,7 @@ const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = (
     addressPageContent = (
       <>
         <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
-        <AddressForm />
+        <AddressForm apiEndpoint={apiEndpoint} shoppingCart={shoppingCart} />
       </>
     );
   } else if (status === 'loggedin') {

@@ -2,6 +2,7 @@ import * as React from 'react';
 import Select from 'react-select';
 import styles from './AddressForm.module.scss';
 import { countries } from '@/utils/countries';
+import { checkoutCreate } from '@/utils/api-client';
 
 /* Validators and Validator flow builder */
 
@@ -96,6 +97,13 @@ const shippingFormTemplate = {
       validators: flowValidation(requiredValidator),
     },
     {
+      type: 'text',
+      name: 'postalCode',
+      label: 'postal code',
+      required: true,
+      validators: flowValidation(requiredValidator),
+    },
+    {
       type: 'select',
       name: 'country',
       label: 'county, prefecture, state or province',
@@ -163,6 +171,13 @@ const billingFormTemplate = {
       type: 'text',
       name: 'countryArea',
       label: 'county, prefecture, state or province',
+      required: true,
+      validators: flowValidation(requiredValidator),
+    },
+    {
+      type: 'text',
+      name: 'postalCode',
+      label: 'postal code',
       required: true,
       validators: flowValidation(requiredValidator),
     },
@@ -285,12 +300,31 @@ const Input = ({
   }
 };
 
-export const AddressForm: React.FC = (): JSX.Element => {
+export const AddressForm: React.FC = ({
+  apiEndpoint,
+  shoppingCart,
+}): JSX.Element => {
   const [wasSubmitted, setWasSubmitted] = React.useState(false);
   const [billingSameAsShipping, setBillingSameAsShipping] =
     React.useState(false);
   const shippingForm = React.useRef(null);
   const billingForm = React.useRef(null);
+
+  console.log('API endpoint in address Form', apiEndpoint);
+  console.log('shopping Cart in address Form', shoppingCart);
+
+  console.log(apiEndpoint);
+
+  function makeLinesArray(shoppingCart) {
+    const lines = [];
+    shoppingCart.forEach((item) => {
+      const itemObj = {};
+      itemObj.quantity = item.quantity;
+      itemObj.variantId = item.variantId;
+      lines.push(itemObj);
+    });
+    return lines;
+  }
 
   function handleContinueToShipping(event: any) {
     const shippingFormData = new FormData(shippingForm.current);
@@ -312,13 +346,17 @@ export const AddressForm: React.FC = (): JSX.Element => {
     - Checkout obect  state should be held in _app.tsx
     - Need to handle backend server errros
     */
+    const lines = makeLinesArray(shoppingCart);
+
     const preCheckoutCreateValues = {
       email: customerEmail,
-      lines: [],
-      shippingAdress: shippingFieldValues,
+      lines: lines,
+      shippingAddress: shippingFieldValues,
       billingAddress: billingFieldValues,
     };
     console.log('preCheckoutCreateValues', preCheckoutCreateValues);
+    let dataCallResult = checkoutCreate(apiEndpoint, preCheckoutCreateValues);
+    console.log(dataCallResult);
   }
 
   function handleSameAsShipping() {

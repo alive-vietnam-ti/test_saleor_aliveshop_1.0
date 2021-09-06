@@ -9,6 +9,112 @@ function client(endpoint: string, customConfig = {}): any {
     .then((response) => response.json());
 }
 
+function constructLines(lines) {
+  let returnLinesString = '[';
+  lines.forEach((item) => {
+    const itemString = `{quantity: ${item.quantity}, variantId: "${item.variantId}"},`;
+    returnLinesString += itemString;
+  });
+  returnLinesString += ']';
+  return returnLinesString;
+}
+
+function checkoutCreate(url, preCheckoutValues: any): any {
+  const lines = constructLines(preCheckoutValues.lines);
+  const checkoutCreateMutation = `
+  mutation {
+    checkoutCreate(
+      input: {
+        email: "${preCheckoutValues.email}"
+        lines: ${lines}
+        shippingAddress: {
+          firstName: "${preCheckoutValues.shippingAddress.firstName}"
+          phone: "${preCheckoutValues.shippingAddress.phoneNumber}"
+          lastName: "${preCheckoutValues.shippingAddress.lastName}"
+          streetAddress1: "${preCheckoutValues.shippingAddress.streetAddress1}"
+          streetAddress2: "${preCheckoutValues.shippingAddress.streetAddress2}"
+          city: "${preCheckoutValues.shippingAddress.city}"
+          countryArea: "${preCheckoutValues.shippingAddress.countryArea}"
+          postalCode: "${preCheckoutValues.shippingAddress.postalCode}"
+          country: ${preCheckoutValues.shippingAddress.country}
+        }
+        billingAddress: {
+          firstName: "${preCheckoutValues.billingAddress.firstName}"
+          lastName: "${preCheckoutValues.billingAddress.lastName}"
+          streetAddress1: "${preCheckoutValues.billingAddress.streetAddress1}"
+          streetAddress2: "${preCheckoutValues.billingAddress.streetAddress2}"
+          city: "${preCheckoutValues.billingAddress.city}"
+          countryArea: "${preCheckoutValues.billingAddress.countryArea}"
+          postalCode: "${preCheckoutValues.billingAddress.postalCode}"
+          country: ${preCheckoutValues.billingAddress.country}
+        }
+      }
+    ) {
+      checkout {
+        id
+        totalPrice {
+          gross {
+            amount
+            currency
+          }
+        }
+        isShippingRequired
+        availableShippingMethods {
+          id
+          name
+        }
+        availablePaymentGateways {
+          id
+          name
+          config {
+            field
+            value
+          }
+        }
+      }
+      checkoutErrors {
+        field
+        code
+      }
+    }
+  }
+  `;
+  console.log(checkoutCreateMutation);
+
+  const clientConfig = {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    },
+    body: JSON.stringify({
+      query: checkoutCreateMutation,
+    }),
+  }; // clientConfig
+
+  return window.fetch(url, clientConfig).then(async (response) => {
+    const { data, error } = await response.json();
+    if (response.ok) {
+      const checkout = data?.checkoutCreate?.checkout;
+      if (checkout) {
+        return checkout;
+      } else {
+        const apiErrors = data?.checkoutCreate?.checkoutErrors;
+        console.log(apiErrors);
+        return Promise.reject(new Error(apiErrors));
+      }
+    } else {
+      console.log('Error', error);
+      /*
+      const graphQLErrors = new Error(
+        error.errors?.map((e: any) => e.message).join('\n') ?? 'unknown'
+      );
+      return Promise.reject(graphQLErrors);
+      */
+      return Promise.reject('rejected here');
+    }
+  });
+}
+
 function fetchProductFromSlug(url: string, slug: string) {
   const productDetailQuery = `query {
           product(slug: "${slug}") {
@@ -93,4 +199,4 @@ function fetchProductFromSlug(url: string, slug: string) {
   });
 } // fetchProductFromString
 
-export { client, fetchProductFromSlug };
+export { client, fetchProductFromSlug, checkoutCreate };
