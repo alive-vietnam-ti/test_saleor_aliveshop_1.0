@@ -356,7 +356,7 @@ export const AddressForm: React.FC = ({
     };
     console.log('preCheckoutCreateValues', preCheckoutCreateValues);
     let dataCallResult = checkoutCreate(apiEndpoint, preCheckoutCreateValues);
-    console.log(dataCallResult);
+    console.log(dataCallResult.then((data) => console.log(data)));
   }
 
   function handleSameAsShipping() {
