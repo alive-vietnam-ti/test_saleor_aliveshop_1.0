@@ -3,6 +3,7 @@ import Select from 'react-select';
 import styles from './AddressForm.module.scss';
 import { countries } from '@/utils/countries';
 import { checkoutCreate } from '@/utils/api-client';
+import { useRouter } from 'next/router';
 
 /* Validators and Validator flow builder */
 
@@ -94,7 +95,7 @@ const shippingFormTemplate = {
       name: 'countryArea',
       label: 'county, prefecture, state or province',
       required: true,
-      validators: flowValidation(requiredValidator),
+      validators: flowValidation(noValidationValidator),
     },
     {
       type: 'text',
@@ -172,7 +173,7 @@ const billingFormTemplate = {
       name: 'countryArea',
       label: 'county, prefecture, state or province',
       required: true,
-      validators: flowValidation(requiredValidator),
+      validators: flowValidation(noValidationValidator),
     },
     {
       type: 'text',
@@ -307,8 +308,13 @@ export const AddressForm: React.FC = ({
   const [wasSubmitted, setWasSubmitted] = React.useState(false);
   const [billingSameAsShipping, setBillingSameAsShipping] =
     React.useState(false);
+  const [formErrors, setFormErrors] = React.useState({
+    hasErrors: false,
+    errorMsg: '',
+  });
   const shippingForm = React.useRef(null);
   const billingForm = React.useRef(null);
+  const router = useRouter();
 
   console.log('API endpoint in address Form', apiEndpoint);
   console.log('shopping Cart in address Form', shoppingCart);
@@ -324,6 +330,19 @@ export const AddressForm: React.FC = ({
       lines.push(itemObj);
     });
     return lines;
+  }
+  function mapBackFieldErrorsToLabels(errorsArray, template) {
+    let errorMessage = 'Sorry your form has errors in the following fields. ';
+    errorsArray.forEach((error, i) => {
+      template.fields.forEach((field) => {
+        if (error.field === field.name) {
+          const msg = `${i + 1}. ${field.label}  `;
+          errorMessage += msg;
+        }
+      });
+    });
+    errorMessage += '.Please check and resubmit.';
+    return errorMessage;
   }
 
   function handleContinueToShipping(event: any) {
@@ -359,13 +378,20 @@ export const AddressForm: React.FC = ({
     dataCallResult
       .then((data) => {
         if (data.errors) {
-          //Need to handle field errors here
+          //Need to handle field errors here and change the
+          const errorMessage = mapBackFieldErrorsToLabels(
+            data.errors,
+            shippingFormTemplate
+          );
+          setFormErrors({ hasErrors: true, errorMsg: errorMessage });
           console.log(data);
         } else {
+          setFormErrors({ hasErrors: false, errorMsg: '' });
           // no field errors so update _app.tsx state with checkout info
           // move onto the next shipping page.
+          console.info(data);
+          router.push('/checkout/shipping');
         }
-        console.info(data);
       })
       .catch((error) => console.error(error));
   }
@@ -376,6 +402,7 @@ export const AddressForm: React.FC = ({
 
   return (
     <div>
+      {formErrors.hasErrors && <p>{formErrors.errorMsg}</p>}
       <h2>{shippingFormTemplate.formTitle}</h2>
       <form className={styles.form} noValidate ref={shippingForm}>
         {shippingFormTemplate.fields.map((field) => {
