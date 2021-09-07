@@ -92,25 +92,28 @@ function checkoutCreate(url, preCheckoutValues: any): any {
   }; // clientConfig
 
   return window.fetch(url, clientConfig).then(async (response) => {
-    const { data, error } = await response.json();
+    const { data, errors } = await response.json();
     if (response.ok) {
+      const responseObject = {
+        data: null,
+        errors: null,
+      };
       const checkout = data?.checkoutCreate?.checkout;
       if (checkout) {
-        return checkout;
+        responseObject.data = checkout;
+        return responseObject;
       } else {
         const apiErrors = data?.checkoutCreate?.checkoutErrors;
-        console.log(apiErrors);
-        return Promise.reject(new Error(apiErrors));
+        responseObject.errors = apiErrors;
+        // calling function must check for field errors
+        return responseObject;
       }
     } else {
-      console.log('Error', error);
-      /*
-      const graphQLErrors = new Error(
-        error.errors?.map((e: any) => e.message).join('\n') ?? 'unknown'
+      const error = new Error(
+        `\nStatus Code: ${response.status}\nError Details: ` +
+          errors?.map((e) => e.message).join('\n') ?? 'unknown'
       );
-      return Promise.reject(graphQLErrors);
-      */
-      return Promise.reject('rejected here');
+      return Promise.reject(error);
     }
   });
 }
@@ -182,7 +185,7 @@ function fetchProductFromSlug(url: string, slug: string) {
   }; // clientCongig
 
   return window.fetch(url, clientCongfig).then(async (response) => {
-    const { data, error } = await response.json();
+    const { data, errors } = await response.json();
     if (response.ok) {
       const product = data?.product;
       if (product) {
@@ -192,7 +195,8 @@ function fetchProductFromSlug(url: string, slug: string) {
       }
     } else {
       const graphQLErrors = new Error(
-        error.errors?.map((e: any) => e.message).join('\n') ?? 'unknown'
+        `\nStatus Code: ${response.status}\nError Details: ` +
+          errors?.map((e: any) => e.message).join('\n') ?? 'unknown'
       );
       return Promise.reject(graphQLErrors);
     }
