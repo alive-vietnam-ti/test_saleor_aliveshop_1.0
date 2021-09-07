@@ -357,7 +357,16 @@ export const AddressForm: React.FC = ({
     console.log('preCheckoutCreateValues', preCheckoutCreateValues);
     let dataCallResult = checkoutCreate(apiEndpoint, preCheckoutCreateValues);
     dataCallResult
-      .then((data) => console.info(data))
+      .then((data) => {
+        if (data.errors) {
+          //Need to handle field errors here
+          console.log(data);
+        } else {
+          // no field errors so update _app.tsx state with checkout info
+          // move onto the next shipping page.
+        }
+        console.info(data);
+      })
       .catch((error) => console.error(error));
   }
 
