@@ -178,6 +178,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     favVisible,
     setFavVisible,
     appCheckoutCreate,
+    checkoutProcess,
     ...pageProps,
   };
 

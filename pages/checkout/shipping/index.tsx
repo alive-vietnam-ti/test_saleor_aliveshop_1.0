@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Head } from '@/components/modules/Head';
 import { Footer } from '@/components/modules/Footer';
+import { CheckoutShippingForm } from '@/components/modules/CheckoutShippingForm';
 import { FooterBranding } from '@/components/elements/FooterBranding';
 import styles from '@/styles/page-styles/Shipping.module.scss';
 import { CheckOutProcessTracker } from '@/components/elements/CheckOutProcessTracker';
@@ -13,10 +14,15 @@ interface IShippingPageProps {
   handleAddToCart: (id: string) => void;
 }
 
-const ShippingPage: React.FC<React.PropsWithChildren<IShippingPageProps>> = (
-  pageProps
-): JSX.Element => {
+const ShippingPage: React.FC<React.PropsWithChildren<IShippingPageProps>> = ({
+  checkoutProcess,
+  ...pageProps
+}): JSX.Element => {
   const checkoutPageName = 'shipping';
+  console.log(
+    'Shipping Page: checkoutProcess',
+    checkoutProcess.checkoutCreateResult.availableShippingMethods
+  );
   return (
     <>
       <Head />
@@ -24,6 +30,13 @@ const ShippingPage: React.FC<React.PropsWithChildren<IShippingPageProps>> = (
         <div className={`${styles.shippingContainer} container`}>
           <h1>Checkkout shipping page</h1>
           <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
+        </div>
+        <div>
+          <CheckoutShippingForm
+            availableShippingMethods={
+              checkoutProcess.checkoutCreateResult.availableShippingMethods
+            }
+          />
         </div>
       </main>
       <Footer>
