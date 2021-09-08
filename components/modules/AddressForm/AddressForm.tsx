@@ -304,6 +304,7 @@ const Input = ({
 export const AddressForm: React.FC = ({
   apiEndpoint,
   shoppingCart,
+  appCheckoutCreate,
 }): JSX.Element => {
   const [wasSubmitted, setWasSubmitted] = React.useState(false);
   const [billingSameAsShipping, setBillingSameAsShipping] =
@@ -389,7 +390,7 @@ export const AddressForm: React.FC = ({
           setFormErrors({ hasErrors: false, errorMsg: '' });
           // no field errors so update _app.tsx state with checkout info
           // move onto the next shipping page.
-          console.info(data);
+          appCheckoutCreate(data.data);
           router.push('/checkout/shipping');
         }
       })

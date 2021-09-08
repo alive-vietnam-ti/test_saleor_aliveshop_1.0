@@ -14,6 +14,7 @@ import { LoginModal } from '@/components/modules/LoginModal';
 import { CartSideBar, ICartItem } from '@/components/modules/CartSideBar';
 import { FavSideBar, IFavItem } from '@/components/modules/FavSideBar';
 import { useBase64LocalStorage } from '@/utils/custom-hooks';
+import { ICheckoutCreate } from '@/common/types';
 
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const cartLocalStorageKey = 'alive-cart';
@@ -45,6 +46,14 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   /*
    * Checkout process logic
    */
+
+  const appCheckoutCreate = (checkout: ICheckoutCreate): void => {
+    const checkoutProcessCopy = JSON.parse(JSON.stringify(checkoutProcess));
+    checkoutProcessCopy.checkoutCreateResult = checkout;
+    checkoutProcessCopy.checkoutId = checkout.id;
+    checkoutProcessCopy.isShippingRequired = checkout.isShippingRequired;
+    setCheckoutProcess(checkoutProcessCopy);
+  };
 
   /*
    * Cart Logic
@@ -168,6 +177,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     setCartVisible,
     favVisible,
     setFavVisible,
+    appCheckoutCreate,
     ...pageProps,
   };
 

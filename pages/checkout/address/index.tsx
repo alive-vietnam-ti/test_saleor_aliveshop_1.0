@@ -58,6 +58,7 @@ const AnonOrLogin: React.FC<{ customerStatusDispatch: React.Dispatch<any> }> =
 
 const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = ({
   apiEndpoint,
+  appCheckoutCreate,
   shoppingCart,
   ...pageProps
 }): JSX.Element => {
@@ -77,7 +78,11 @@ const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = ({
     addressPageContent = (
       <>
         <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
-        <AddressForm apiEndpoint={apiEndpoint} shoppingCart={shoppingCart} />
+        <AddressForm
+          apiEndpoint={apiEndpoint}
+          shoppingCart={shoppingCart}
+          appCheckoutCreate={appCheckoutCreate}
+        />
       </>
     );
   } else if (status === 'loggedin') {
