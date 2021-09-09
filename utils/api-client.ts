@@ -18,8 +18,11 @@ function constructLines(lines) {
   returnLinesString += ']';
   return returnLinesString;
 }
+//
+// Checkout Api Call Functions
+//
 
-function checkoutCreate(url, preCheckoutValues: any): any {
+function checkoutCreate(url: string, preCheckoutValues: any): any {
   const lines = constructLines(preCheckoutValues.lines);
   const checkoutCreateMutation = `
   mutation {
@@ -79,7 +82,6 @@ function checkoutCreate(url, preCheckoutValues: any): any {
     }
   }
   `;
-  console.log(checkoutCreateMutation);
 
   const clientConfig = {
     method: 'POST',
@@ -118,7 +120,75 @@ function checkoutCreate(url, preCheckoutValues: any): any {
   });
 }
 
-function fetchProductFromSlug(url: string, slug: string) {
+function apiCheckoutShippingMethodUpdate(
+  url: string,
+  checkoutId: string,
+  shippingMethod: string
+): any {
+  const mutation = `
+        mutation {
+          checkoutShippingMethodUpdate(
+            checkoutId: ${checkoutId}
+            shippingMethodId: ${shippingMethod}
+          ) {
+            checkout {
+              id
+              shippingMethod {
+                name
+              }
+              totalPrice {
+                gross {
+                  amount
+                  currency
+                }
+              }
+            }
+            checkoutErrors {
+              field
+              message
+            }
+          }
+        }
+        `;
+
+  const clientConfig = {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    },
+    body: JSON.stringify({
+      query: mutation,
+    }),
+  }; // clientConfig
+
+  return window.fetch(url, clientConfig).then(async (response) => {
+    const { data, errors } = await response.json();
+    if (response.ok) {
+      const responseObject = {
+        data: null,
+        errors: null,
+      };
+      const checkout = data?.checkoutShippingMethodUpdate?.checkout;
+      if (checkout) {
+        responseObject.data = checkout;
+        return responseObject;
+      } else {
+        const apiErrors = data?.checkoutShippingMethodUpdate?.checkoutErrors;
+        responseObject.errors = apiErrors;
+        // calling function must check for field errors
+        return responseObject;
+      }
+    } else {
+      const error = new Error(
+        `\nStatus Code: ${response.status}\nError Details: ` +
+          errors?.map((e: any) => e.message).join('\n') ?? 'unknown'
+      );
+      return Promise.reject(error);
+    }
+  });
+}
+
+function fetchProductFromSlug(url: string, slug: string): any {
   const productDetailQuery = `query {
           product(slug: "${slug}") {
               id
@@ -203,4 +273,9 @@ function fetchProductFromSlug(url: string, slug: string) {
   });
 } // fetchProductFromString
 
-export { client, fetchProductFromSlug, checkoutCreate };
+export {
+  client,
+  fetchProductFromSlug,
+  checkoutCreate,
+  apiCheckoutShippingMethodUpdate,
+};

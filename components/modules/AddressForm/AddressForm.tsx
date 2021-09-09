@@ -391,7 +391,9 @@ export const AddressForm: React.FC = ({
           // no field errors so update _app.tsx state with checkout info
           // move onto the next shipping page.
           appCheckoutCreate(data.data);
-          router.push('/checkout/shipping');
+          setTimeout(() => {
+            router.push('/checkout/shipping');
+          }, 0);
         }
       })
       .catch((error) => console.error(error));

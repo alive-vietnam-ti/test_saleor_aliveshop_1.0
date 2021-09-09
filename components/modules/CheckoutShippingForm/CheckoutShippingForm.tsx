@@ -26,6 +26,8 @@ const ShippingFormInput = ({ shippingMethodId, shippingMethodName }) => {
 export const CheckoutShippingForm: React.FC = ({
   availableShippingMethods,
 }): JSX.Element => {
+  const [shippingMethods, setShippingMethods] =
+    React.useState<{ name: string; id: string }[] | null>(null);
   const shippingMethodForm = React.useRef(null);
   const handleContinueToPayment = () => {
     const shippingMethodFormData = new FormData(shippingMethodForm.current);
@@ -37,19 +39,26 @@ export const CheckoutShippingForm: React.FC = ({
       shippingMethodFieldValues
     );
   };
+  React.useEffect(() => {
+    if (!availableShippingMethods) {
+      return;
+    }
+    setShippingMethods(availableShippingMethods);
+  }, [availableShippingMethods]);
   return (
     <div>
       <h2 className={styles.formHeading}>Shipping Method</h2>
       <form noValidate ref={shippingMethodForm} className={styles.form}>
-        {availableShippingMethods.map((method) => {
-          return (
-            <ShippingFormInput
-              key={method.id}
-              shippingMethodId={method.id}
-              shippingMethodName={method.name}
-            />
-          );
-        })}
+        {shippingMethods &&
+          shippingMethods.map((method) => {
+            return (
+              <ShippingFormInput
+                key={method.id}
+                shippingMethodId={method.id}
+                shippingMethodName={method.name}
+              />
+            );
+          })}
       </form>
       <button className={styles.submitButton} onClick={handleContinueToPayment}>
         Continue to Payment
