@@ -42,7 +42,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               buttonText="Login"
               formTitle="Login"
             />
-            <p>
+            <p className="mt15 ml100">
               Don&lsquo;t have an account?
               <a
                 className={styles.changeFormLink}
@@ -57,9 +57,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             <LoginRegistrationForm
               onSubmit={register}
               buttonText="Sign Up"
-              formTitle="Login"
+              formTitle="Sign Up"
             />
-            <p>
+            <p className="mt15 ml100">
               Already have an account?
               <a
                 className={styles.changeFormLink}

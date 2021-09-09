@@ -31,18 +31,18 @@ export const LoginRegistrationForm: React.FC<LoginRegistrationFormProps> = ({
     });
   }
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>{formTitle}</h2>
-      <div>
+    <form onSubmit={handleSubmit} className={styles.formContainer}>
+      <h2 className={styles.formTitle}>{formTitle}</h2>
+      <div className={styles.formField}>
         <label htmlFor="email">Email</label>
         <input id="email" type="email" />
       </div>
-      <div>
+      <div className={styles.formField}>
         <label htmlFor="password">Password</label>
         <input id="password" type="password" />
       </div>
       <div>
-        <button onSubmit={handleSubmit}>{buttonText}</button>
+        <button className={styles.btnSubmit} onSubmit={handleSubmit}>{buttonText}</button>
       </div>
     </form>
   );

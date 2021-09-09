@@ -4,16 +4,55 @@
   display: flex;
   justify-content: flex-end;
 }
+
 .modalCloseBtn {
   border: none;
   background-color: transparent;
   font-size: 1rem;
 }
+
 .changeFormLink {
   display: inline-block;
   margin-left: 0.5rem;
 }
+
 .changeFormLink:hover {
   text-decoration: underline;
   cursor: pointer;
+}
+
+.formContainer {
+  .formTitle {
+    font-weight: bold;
+    font-size: 24px;
+    text-transform: uppercase;
+  }
+
+  .formField {
+    display: flex;
+    margin-top: 15px;
+    align-items: center;
+
+    label {
+      width: 100px;
+    }
+
+    input {
+      width: 200px;
+      display: block;
+      height: 36px;
+      padding: 0 15px;
+      border: 1px solid $grey;
+    }
+  }
+
+  .btnSubmit {
+    margin-top: 15px;
+    height: 36px;
+    padding: 0 15px;
+    margin-left: 100px;
+    font-weight: bold;
+    border: 1px solid $brand;
+    background: $brand;
+  }
 }
