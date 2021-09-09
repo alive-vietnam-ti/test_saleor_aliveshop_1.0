@@ -1,18 +1,23 @@
 import * as React from 'react';
 import styles from './CheckoutShippingForm.module.scss';
+
 import { useRouter } from 'next/router';
 
 const ShippingFormInput = ({ shippingMethodId, shippingMethodName }) => {
   return (
-    <div key={shippingMethodId}>
-      <input
-        type="radio"
-        id={`${shippingMethodName}-${shippingMethodId}`}
-        name="shippingMethod"
-        value={shippingMethodId}
-      ></input>
-      <label htmlFor={`${shippingMethodName}-${shippingMethodId}`}>
-        {shippingMethodName}
+    <div key={shippingMethodId} className={styles.formGroup}>
+      <label
+        className={styles.label}
+        htmlFor={`${shippingMethodName}-${shippingMethodId}`}
+      >
+        <input
+          className={styles.input}
+          type="radio"
+          id={`${shippingMethodName}-${shippingMethodId}`}
+          name="shippingMethod"
+          value={shippingMethodId}
+        ></input>
+        <span className={styles.pseudoLabel}>{shippingMethodName}</span>
       </label>
     </div>
   );
@@ -34,8 +39,8 @@ export const CheckoutShippingForm: React.FC = ({
   };
   return (
     <div>
-      <h2>Shipping Method</h2>
-      <form noValidate ref={shippingMethodForm}>
+      <h2 className={styles.formHeading}>Shipping Method</h2>
+      <form noValidate ref={shippingMethodForm} className={styles.form}>
         {availableShippingMethods.map((method) => {
           return (
             <ShippingFormInput
@@ -46,7 +51,9 @@ export const CheckoutShippingForm: React.FC = ({
           );
         })}
       </form>
-      <button onClick={handleContinueToPayment}>Continue to Payment</button>
+      <button className={styles.submitButton} onClick={handleContinueToPayment}>
+        Continue to Payment
+      </button>
     </div>
   );
 };

@@ -30,8 +30,6 @@ const ShippingPage: React.FC<React.PropsWithChildren<IShippingPageProps>> = ({
         <div className={`${styles.shippingContainer} container`}>
           <h1>Checkkout shipping page</h1>
           <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
-        </div>
-        <div>
           <CheckoutShippingForm
             availableShippingMethods={
               checkoutProcess.checkoutCreateResult.availableShippingMethods
