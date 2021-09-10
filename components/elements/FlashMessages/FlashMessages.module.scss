@@ -1,0 +1,14 @@
+@import '@/styles/vars';
+
+.messagesContainer {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);
+  background-color: $light-brand;
+  min-height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.8rem;
+}

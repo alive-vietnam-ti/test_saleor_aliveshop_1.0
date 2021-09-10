@@ -10,6 +10,7 @@ import { SearchBar } from '@/components/elements/SearchBar';
 import { ShoppingBag } from '@/components/elements/ShoppingBag';
 import { UserIcon } from '@/components/elements/UserIcon';
 import { Favorite } from '@/components/elements/Favorite';
+import { FlashMessages } from '@/components/elements/FlashMessages';
 import { LoginModal } from '@/components/modules/LoginModal';
 import { CartSideBar, ICartItem } from '@/components/modules/CartSideBar';
 import { FavSideBar, IFavItem } from '@/components/modules/FavSideBar';
@@ -19,6 +20,7 @@ import { ICheckoutCreate } from '@/common/types';
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const cartLocalStorageKey = 'alive-cart';
   const checkoutProcessKey = 'checkout';
+  const [flashMessages, setFlashMessages] = React.useState<string[]>([]);
   const [loginOrRegister, setLoginOrRegister] = React.useState('login');
   const [cartVisible, setCartVisible] = React.useState(false);
   const [favVisible, setFavVisible] = React.useState(false);
@@ -168,6 +170,8 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
 
   pageProps = {
     apiEndpoint: API_ENDPOINT,
+    setFlashMessages,
+    flashMessages,
     addToCart,
     toggleProductInFav,
     productsFav,
@@ -198,6 +202,10 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
         <Favorite setFavVisible={setFavVisible} productsFav={productsFav} />
         <UserIcon setShowLoginModal={setShowLoginModal} />
       </TopNav>
+      <FlashMessages
+        flashMessages={flashMessages}
+        setFlashMessages={setFlashMessages}
+      />
       <Component {...pageProps} />
       <CartSideBar
         cartVisible={cartVisible}

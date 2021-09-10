@@ -1,3 +1,15 @@
+import * as React from 'react';
+// Flash Messages
+export type TFlashMessages = string[];
+export type TSetFlashMessages = React.Dispatch<
+  React.SetStateAction<TFlashMessages>
+>;
+
+export interface IFlashMessagesProps {
+  flashMessages: TFlashMessages;
+  setFlashMessages: TSetFlashMessages;
+}
+
 // Checkout Process Types
 
 export interface ICheckoutCreate {

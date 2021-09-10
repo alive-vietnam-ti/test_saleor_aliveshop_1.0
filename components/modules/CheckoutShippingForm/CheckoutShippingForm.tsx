@@ -29,6 +29,7 @@ export const CheckoutShippingForm: React.FC = ({
   const [shippingMethods, setShippingMethods] =
     React.useState<{ name: string; id: string }[] | null>(null);
   const shippingMethodForm = React.useRef(null);
+
   const handleContinueToPayment = () => {
     const shippingMethodFormData = new FormData(shippingMethodForm.current);
     const shippingMethodFieldValues = Object.fromEntries(
@@ -39,12 +40,14 @@ export const CheckoutShippingForm: React.FC = ({
       shippingMethodFieldValues
     );
   };
+
   React.useEffect(() => {
     if (!availableShippingMethods) {
       return;
     }
     setShippingMethods(availableShippingMethods);
   }, [availableShippingMethods]);
+
   return (
     <div>
       <h2 className={styles.formHeading}>Shipping Method</h2>
