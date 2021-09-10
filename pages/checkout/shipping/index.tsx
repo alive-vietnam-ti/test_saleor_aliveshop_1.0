@@ -5,6 +5,7 @@ import { CheckoutShippingForm } from '@/components/modules/CheckoutShippingForm'
 import { FooterBranding } from '@/components/elements/FooterBranding';
 import styles from '@/styles/page-styles/Shipping.module.scss';
 import { CheckOutProcessTracker } from '@/components/elements/CheckOutProcessTracker';
+import { useRouter } from 'next/router';
 
 interface IShippingPageProps {
   apiEndpoint: string;
@@ -16,13 +17,35 @@ interface IShippingPageProps {
 
 const ShippingPage: React.FC<React.PropsWithChildren<IShippingPageProps>> = ({
   checkoutProcess,
+  shoppingCart,
+  setFlashMessages,
   ...pageProps
 }): JSX.Element => {
   const checkoutPageName = 'shipping';
-  console.log(
-    'Shipping Page: checkoutProcess',
-    checkoutProcess.checkoutCreateResult.availableShippingMethods
-  );
+  const router = useRouter();
+  let fragment;
+  React.useEffect(() => {
+    if (
+      shoppingCart.length === 0 ||
+      !checkoutProcess?.checkoutCreateResult?.availableShippingMethods
+    ) {
+      fragment = <p>loading</p>;
+      setFlashMessages([
+        'you have nothing in your cart, please consider buying something first',
+      ]);
+      if (typeof window !== 'undefined') {
+        router.push('/');
+      }
+    } else {
+      fragment = (
+        <CheckoutShippingForm
+          availableShippingMethods={
+            checkoutProcess.checkoutCreateResult.availableShippingMethods
+          }
+        />
+      );
+    }
+  }, [checkoutProcess, shoppingCart]);
   return (
     <>
       <Head />
@@ -30,11 +53,7 @@ const ShippingPage: React.FC<React.PropsWithChildren<IShippingPageProps>> = ({
         <div className={`${styles.shippingContainer} container`}>
           <h1>Checkkout shipping page</h1>
           <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
-          <CheckoutShippingForm
-            availableShippingMethods={
-              checkoutProcess.checkoutCreateResult.availableShippingMethods
-            }
-          />
+          {fragment}
         </div>
       </main>
       <Footer>
