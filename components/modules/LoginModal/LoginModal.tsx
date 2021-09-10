@@ -42,7 +42,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               buttonText="Login"
               formTitle="Login"
             />
-            <p className="mt15 ml100">
+            <p className={styles.callOut}>
               Don&lsquo;t have an account?
               <a
                 className={styles.changeFormLink}
@@ -59,7 +59,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               buttonText="Sign Up"
               formTitle="Sign Up"
             />
-            <p className="mt15 ml100">
+            <p className={styles.callOut}>
               Already have an account?
               <a
                 className={styles.changeFormLink}
