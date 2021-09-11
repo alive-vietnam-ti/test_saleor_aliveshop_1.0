@@ -1,3 +1,4 @@
+import { Button } from '@/components/elements/Button';
 import React from 'react';
 import styles from './LoginRegistrationForm.module.scss';
 
@@ -42,7 +43,7 @@ export const LoginRegistrationForm: React.FC<LoginRegistrationFormProps> = ({
         <input id="password" type="password" />
       </div>
       <div>
-        <button className={styles.btnSubmit} onSubmit={handleSubmit}>{buttonText}</button>
+        <Button label={buttonText} onClick={handleSubmit} />
       </div>
     </form>
   );

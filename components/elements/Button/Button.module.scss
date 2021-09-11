@@ -1,0 +1,12 @@
+@import '@/styles/vars';
+
+.btn {
+  color: #fff;
+  margin-top: 15px;
+  height: 36px;
+  padding: 0 15px;
+  margin-left: 100px;
+  font-weight: bold;
+  border: 1px solid $brand;
+  background: $brand;
+}
