@@ -22,36 +22,49 @@ const ShippingPage: React.FC<React.PropsWithChildren<IShippingPageProps>> = ({
   ...pageProps
 }): JSX.Element => {
   const checkoutPageName = 'shipping';
+  const [formLoadState, setFormLoadState] = React.useState('loading');
   const router = useRouter();
+
   let fragment;
+
   React.useEffect(() => {
     if (
       shoppingCart.length === 0 ||
       !checkoutProcess?.checkoutCreateResult?.availableShippingMethods
     ) {
-      fragment = <p>loading</p>;
       setFlashMessages([
         'you have nothing in your cart, please consider buying something first',
       ]);
       if (typeof window !== 'undefined') {
         router.push('/');
       }
+      setFormLoadState('redirect');
     } else {
-      fragment = (
-        <CheckoutShippingForm
-          availableShippingMethods={
-            checkoutProcess.checkoutCreateResult.availableShippingMethods
-          }
-        />
-      );
+      setFormLoadState('loaded');
     }
   }, [checkoutProcess, shoppingCart]);
+
+  if (formLoadState === 'loading') {
+    fragment = <p>Loading form</p>;
+  } else if (formLoadState === 'loaded') {
+    fragment = (
+      <CheckoutShippingForm
+        availableShippingMethods={
+          checkoutProcess.checkoutCreateResult.availableShippingMethods
+        }
+      />
+    );
+  } else if (formLoadState === 'redirect') {
+    fragment = <p>loading</p>;
+  } else {
+    fragment = <p>Oops Something went wrong</p>;
+  }
+
   return (
     <>
       <Head />
       <main>
         <div className={`${styles.shippingContainer} container`}>
-          <h1>Checkkout shipping page</h1>
           <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
           {fragment}
         </div>
