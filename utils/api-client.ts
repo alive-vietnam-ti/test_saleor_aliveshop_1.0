@@ -128,8 +128,8 @@ function apiCheckoutShippingMethodUpdate(
   const mutation = `
         mutation {
           checkoutShippingMethodUpdate(
-            checkoutId: ${checkoutId}
-            shippingMethodId: ${shippingMethod}
+            checkoutId: "${checkoutId}"
+            shippingMethodId: "${shippingMethod}"
           ) {
             checkout {
               id
