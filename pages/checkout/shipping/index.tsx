@@ -17,6 +17,7 @@ interface IShippingPageProps {
 
 const ShippingPage: React.FC<React.PropsWithChildren<IShippingPageProps>> = ({
   checkoutProcess,
+  apiEndpoint,
   shoppingCart,
   setFlashMessages,
   ...pageProps
@@ -52,6 +53,8 @@ const ShippingPage: React.FC<React.PropsWithChildren<IShippingPageProps>> = ({
         availableShippingMethods={
           checkoutProcess.checkoutCreateResult.availableShippingMethods
         }
+        apiEndpoint={apiEndpoint}
+        checkoutId={checkoutProcess.checkoutId}
       />
     );
   } else if (formLoadState === 'redirect') {

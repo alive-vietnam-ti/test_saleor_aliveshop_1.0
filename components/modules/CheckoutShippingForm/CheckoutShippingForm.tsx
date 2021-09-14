@@ -1,5 +1,6 @@
 import * as React from 'react';
 import styles from './CheckoutShippingForm.module.scss';
+import { apiCheckoutShippingMethodUpdate } from '@/utils/api-client';
 
 import { useRouter } from 'next/router';
 
@@ -25,20 +26,44 @@ const ShippingFormInput = ({ shippingMethodId, shippingMethodName }) => {
 
 export const CheckoutShippingForm: React.FC = ({
   availableShippingMethods,
+  apiEndpoint,
+  checkoutId,
 }): JSX.Element => {
   const [shippingMethods, setShippingMethods] =
     React.useState<{ name: string; id: string }[] | null>(null);
   const shippingMethodForm = React.useRef(null);
+  const [formErrors, setFormErrors] = React.useState<string[]>([]);
 
   const handleContinueToPayment = () => {
     const shippingMethodFormData = new FormData(shippingMethodForm.current);
     const shippingMethodFieldValues = Object.fromEntries(
       shippingMethodFormData.entries()
     );
-    console.log(
-      'handleContineToPayment Form Values',
-      shippingMethodFieldValues
+    // Check user choose method
+    // Perhaps put a formValid state here to disable the continue to payment button
+    if (Object.keys(shippingMethodFieldValues).length === 0) {
+      const formErrorsCpy = [...formErrors];
+      formErrorsCpy.push('Please choose a shipping method');
+      setFormErrors(formErrorsCpy);
+    } else {
+      setFormErrors([]);
+    }
+    // use the id for the shipping method to make api call
+    let dataCallResult = apiCheckoutShippingMethodUpdate(
+      apiEndpoint,
+      checkoutId,
+      shippingMethodFieldValues.shippingMethod
     );
+    dataCallResult
+      .then((data) => {
+        if (data.errors) {
+          //Need to handle field errors here and change the
+          console.error('Errors', data);
+        } else {
+          console.log('Data', data);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
   React.useEffect(() => {
@@ -52,6 +77,14 @@ export const CheckoutShippingForm: React.FC = ({
     <div>
       <h2 className={styles.formHeading}>Shipping Method</h2>
       <form noValidate ref={shippingMethodForm} className={styles.form}>
+        <div>
+          <ul>
+            {formErrors.length > 0 &&
+              formErrors.map((err: string, i: number) => {
+                return <li key={`${err.slice(0, 2)}-${i}`}>{err}</li>;
+              })}
+          </ul>
+        </div>
         {shippingMethods &&
           shippingMethods.map((method) => {
             return (
