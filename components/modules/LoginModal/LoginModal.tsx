@@ -4,12 +4,15 @@ import {
   LoginRegistrationForm,
   IOnSubmit,
 } from '@/components/modules/LoginRegistrationForm';
+import { client } from '@/utils/api-client';
+import { useState, setState } from 'react';
 
 interface LoginModalProps {
   setShowLoginModal: React.Dispatch<React.SetStateAction<boolean>>;
   setLoginOrRegister: React.Dispatch<React.SetStateAction<string>>;
   showLoginModal: boolean;
   loginOrRegister: string;
+  apiEndpoint: string;
 }
 
 export const LoginModal: React.FC<LoginModalProps> = ({
@@ -17,12 +20,70 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   setLoginOrRegister,
   showLoginModal,
   loginOrRegister,
+  apiEndpoint,
 }): JSX.Element => {
+  const [errorForm, setErrorForm] = useState({
+    status: 'idle',
+    message: '',
+  });
+
   function login(formData: IOnSubmit): void {
     console.log(formData);
   }
   function register(formData: IOnSubmit): void {
-    console.log(formData);
+    setErrorForm({
+      status: '',
+      message: '',
+    });
+    const createUserQuery = `mutation AccountRegister {
+      accountRegister(
+        input: {
+          email: "${formData.email}"
+          password: "${formData.password}"
+          redirectUrl: "http://localhost:3000/"
+        }
+      ) {
+        accountErrors {
+          field
+          code
+          message
+        }
+        user {
+          email
+          isActive
+        }
+      }
+    }`;
+    const clientCongfig = {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json;charset=UTF-8',
+      },
+      body: JSON.stringify({
+        query: createUserQuery,
+      }),
+    };
+    client(apiEndpoint, clientCongfig)
+      .then((responseObj: any) => {
+        if (responseObj.data.accountRegister.accountErrors) {
+          const messageErr = responseObj.data.accountRegister.accountErrors.reduce(function (result: any, item: any) {
+            return result + `${item.field} is ${item.message}`;
+          }, '')
+          setErrorForm({
+            status: 'error',
+            message: messageErr,
+          });
+        } else {
+          setLoginOrRegister('login');
+        }
+
+      })
+      .catch((error: any) => {
+        setErrorForm({
+          status: 'error',
+          message: 'Internal server error ' + error.message,
+        });
+      });
   }
   return (
     <Dialog aria-label="Login or Register Form" isOpen={showLoginModal}>
@@ -69,6 +130,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               </a>
             </p>
           </div>
+        )}
+        {errorForm && (
+          <div style={{ marginTop: 10, marginLeft: 100, color: 'red' }}>{errorForm.message}</div>
         )}
       </div>
     </Dialog>

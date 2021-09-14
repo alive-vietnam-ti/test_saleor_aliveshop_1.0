@@ -221,6 +221,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
         productsFav={productsFav}
       />
       <LoginModal
+        apiEndpoint={API_ENDPOINT}
         showLoginModal={showLoginModal}
         setShowLoginModal={setShowLoginModal}
         loginOrRegister={loginOrRegister}

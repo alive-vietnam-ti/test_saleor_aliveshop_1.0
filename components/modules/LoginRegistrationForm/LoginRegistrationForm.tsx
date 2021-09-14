@@ -36,14 +36,14 @@ export const LoginRegistrationForm: React.FC<LoginRegistrationFormProps> = ({
       <h2 className={styles.formTitle}>{formTitle}</h2>
       <div className={styles.formField}>
         <label htmlFor="email">Email</label>
-        <input id="email" type="email" />
+        <input id="email" type="email" name="email" />
       </div>
       <div className={styles.formField}>
         <label htmlFor="password">Password</label>
-        <input id="password" type="password" />
+        <input id="password" type="password" name="password" />
       </div>
       <div>
-        <Button label={buttonText} onClick={handleSubmit} />
+        <Button label={buttonText} />
       </div>
     </form>
   );
