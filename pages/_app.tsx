@@ -36,9 +36,13 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const [checkoutProcess, setCheckoutProcess] = useBase64LocalStorage(
     checkoutProcessKey,
     {
-      checkoutCreateResult: null,
-      checkoutId: null,
+      checkoutId: '',
+      checkoutToken: '',
+      totalPrice: null,
       isShippingRequired: false,
+      availableShippingMethods: null,
+      availablePaymentGateways: null,
+      checkoutCreateResult: null,
       checkoutShippingMethodUpdateResult: null,
       checkoutPaymentCreateResult: null,
       checkoutCompleteResult: null,
