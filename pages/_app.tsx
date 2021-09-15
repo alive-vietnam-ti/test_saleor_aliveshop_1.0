@@ -15,7 +15,8 @@ import { LoginModal } from '@/components/modules/LoginModal';
 import { CartSideBar, ICartItem } from '@/components/modules/CartSideBar';
 import { FavSideBar, IFavItem } from '@/components/modules/FavSideBar';
 import { useBase64LocalStorage } from '@/utils/custom-hooks';
-import { ICheckoutCreate } from '@/common/types';
+//types
+import { ICheckoutCreate, ICheckoutShippingMethodUpdate } from '@/common/types';
 
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const cartLocalStorageKey = 'alive-cart';
@@ -41,7 +42,10 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
       totalPrice: null,
       isShippingRequired: false,
       availableShippingMethods: null,
+      shippingMethod: null,
       availablePaymentGateways: null,
+      paymentMethod: null,
+      payment: null, // to store successful result of checkoutPaymentCreate
       checkoutCreateResult: null,
       checkoutShippingMethodUpdateResult: null,
       checkoutPaymentCreateResult: null,
@@ -55,9 +59,30 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
 
   const appCheckoutCreate = (checkout: ICheckoutCreate): void => {
     const checkoutProcessCopy = JSON.parse(JSON.stringify(checkoutProcess));
-    checkoutProcessCopy.checkoutCreateResult = checkout;
     checkoutProcessCopy.checkoutId = checkout.id;
+    checkoutProcessCopy.checkoutToken = checkout.token;
+    checkoutProcessCopy.totalPrice = checkout.totalPrice;
     checkoutProcessCopy.isShippingRequired = checkout.isShippingRequired;
+    checkoutProcessCopy.availableShippingMethods =
+      checkout.availableShippingMethods;
+    checkoutProcessCopy.availablePaymentGateways =
+      checkout.availablePaymentGateways;
+    checkoutProcessCopy.checkoutCreateResult = checkout;
+    setCheckoutProcess(checkoutProcessCopy);
+  };
+
+  const appCheckoutUpdateShipping = (
+    checkout: ICheckoutShippingMethodUpdate
+  ): void => {
+    console.log('appCheckoutUpdateShippingMethod --> checkout', checkout);
+    const checkoutProcessCopy = JSON.parse(JSON.stringify(checkoutProcess));
+    checkoutProcessCopy.totalPrice = checkout.totalPrice;
+    checkoutProcessCopy.shippingMethod = checkout.shippingMethod;
+    checkoutProcessCopy.checkoutShippingMethodUpdateResult = checkout;
+    console.log(
+      'appCheckoutUpdateShippingMethod --> updated checkoutProcess',
+      checkoutProcessCopy
+    );
     setCheckoutProcess(checkoutProcessCopy);
   };
 
@@ -186,6 +211,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     favVisible,
     setFavVisible,
     appCheckoutCreate,
+    appCheckoutUpdateShipping,
     checkoutProcess,
     ...pageProps,
   };

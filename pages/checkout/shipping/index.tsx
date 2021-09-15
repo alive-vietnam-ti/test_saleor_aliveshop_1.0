@@ -20,6 +20,7 @@ const ShippingPage: React.FC<React.PropsWithChildren<IShippingPageProps>> = ({
   apiEndpoint,
   shoppingCart,
   setFlashMessages,
+  appCheckoutUpdateShipping,
   ...pageProps
 }): JSX.Element => {
   const checkoutPageName = 'shipping';
@@ -31,7 +32,7 @@ const ShippingPage: React.FC<React.PropsWithChildren<IShippingPageProps>> = ({
   React.useEffect(() => {
     if (
       shoppingCart.length === 0 ||
-      !checkoutProcess?.checkoutCreateResult?.availableShippingMethods
+      !checkoutProcess.availableShippingMethods
     ) {
       setFlashMessages([
         'you have nothing in your cart, please consider buying something first',
@@ -50,9 +51,8 @@ const ShippingPage: React.FC<React.PropsWithChildren<IShippingPageProps>> = ({
   } else if (formLoadState === 'loaded') {
     fragment = (
       <CheckoutShippingForm
-        availableShippingMethods={
-          checkoutProcess.checkoutCreateResult.availableShippingMethods
-        }
+        appCheckoutUpdateShipping={appCheckoutUpdateShipping}
+        availableShippingMethods={checkoutProcess.availableShippingMethods}
         apiEndpoint={apiEndpoint}
         checkoutId={checkoutProcess.checkoutId}
       />
