@@ -11,20 +11,28 @@ export interface IFlashMessagesProps {
 }
 
 // Checkout Process Types
+export interface ITotalPrice {
+  gross: {
+    amount: number;
+    currency: string;
+  };
+}
 
 export interface ICheckoutCreate {
   id: string;
-  totalPrice: {
-    gross: {
-      amount: number;
-      currency: string;
-    };
-  };
+  token: string;
+  totalPrice: ITotalPrice;
   isShippingRequired: boolean;
   availableShippingMethods: { id: string; name: string }[];
   availablePaymentGateways: {
-    id: 'mirumee.payments.braintree';
-    name: 'Braintree';
+    id: string;
+    name: string;
     config: { field: string; value: string }[];
   }[];
+}
+
+export interface ICheckoutShippingMethodUpdate {
+  id: string;
+  shippingMethod: { name: string };
+  totalPrice: ITotalPrice;
 }

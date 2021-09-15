@@ -55,6 +55,7 @@ function checkoutCreate(url: string, preCheckoutValues: any): any {
     ) {
       checkout {
         id
+        token
         totalPrice {
           gross {
             amount

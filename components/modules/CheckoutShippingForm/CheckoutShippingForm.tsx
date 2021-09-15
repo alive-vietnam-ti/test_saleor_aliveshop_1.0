@@ -28,11 +28,16 @@ export const CheckoutShippingForm: React.FC = ({
   availableShippingMethods,
   apiEndpoint,
   checkoutId,
+  appCheckoutUpdateShipping,
 }): JSX.Element => {
+  //state
   const [shippingMethods, setShippingMethods] =
     React.useState<{ name: string; id: string }[] | null>(null);
-  const shippingMethodForm = React.useRef(null);
   const [formErrors, setFormErrors] = React.useState<string[]>([]);
+  //refs
+  const shippingMethodForm = React.useRef(null);
+
+  const router = useRouter();
 
   const handleContinueToPayment = () => {
     const shippingMethodFormData = new FormData(shippingMethodForm.current);
@@ -58,9 +63,17 @@ export const CheckoutShippingForm: React.FC = ({
       .then((data) => {
         if (data.errors) {
           //Need to handle field errors here and change the
-          console.error('Errors', data);
+          const formErrorsCpy = [...formErrors];
+          formErrorsCpy.push('There seems to be problem, please try again!');
+          console.error(data.errors);
+          setFormErrors(formErrorsCpy);
         } else {
-          console.log('Data', data);
+          setFormErrors([]);
+          // set app level checkout object here
+          appCheckoutUpdateShipping(data.data);
+          setTimeout(() => {
+            router.push('/checkout/payment');
+          }, 0);
         }
       })
       .catch((error) => console.error(error));
