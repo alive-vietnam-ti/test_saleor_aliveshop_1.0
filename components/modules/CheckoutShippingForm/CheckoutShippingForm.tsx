@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styles from './CheckoutShippingForm.module.scss';
-import { apiCheckoutShippingMethodUpdate } from '@/utils/api-client';
+import { apiCheckoutShippingMethodUpdate } from '@/utils/api/checkout';
 
 import { useRouter } from 'next/router';
 

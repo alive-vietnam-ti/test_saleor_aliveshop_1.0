@@ -272,7 +272,7 @@ function fetchProductFromSlug(url: string, slug: string): any {
       return Promise.reject(graphQLErrors);
     }
   });
-} // fetchProductFromString
+} // fetchProductFromSlug
 
 export {
   client,
