@@ -2,7 +2,7 @@ import * as React from 'react';
 import Select from 'react-select';
 import styles from './AddressForm.module.scss';
 import { countries } from '@/utils/countries';
-import { checkoutCreate } from '@/utils/api-client';
+import { apiCheckoutCreate } from '@/utils/api/checkout';
 import { useRouter } from 'next/router';
 
 /* Validators and Validator flow builder */
@@ -107,7 +107,7 @@ const shippingFormTemplate = {
     {
       type: 'select',
       name: 'country',
-      label: 'county, prefecture, state or province',
+      label: 'country',
       required: true,
       options: countries,
       validators: flowValidation(requiredValidator),
@@ -185,7 +185,7 @@ const billingFormTemplate = {
     {
       type: 'select',
       name: 'country',
-      label: 'county, prefecture, state or province',
+      label: 'country',
       required: true,
       options: countries,
       validators: flowValidation(requiredValidator),
@@ -375,7 +375,10 @@ export const AddressForm: React.FC = ({
       billingAddress: billingFieldValues,
     };
     console.log('preCheckoutCreateValues', preCheckoutCreateValues);
-    let dataCallResult = checkoutCreate(apiEndpoint, preCheckoutCreateValues);
+    let dataCallResult = apiCheckoutCreate(
+      apiEndpoint,
+      preCheckoutCreateValues
+    );
     dataCallResult
       .then((data) => {
         if (data.errors) {
@@ -385,7 +388,6 @@ export const AddressForm: React.FC = ({
             shippingFormTemplate
           );
           setFormErrors({ hasErrors: true, errorMsg: errorMessage });
-          console.log(data);
         } else {
           setFormErrors({ hasErrors: false, errorMsg: '' });
           // no field errors so update _app.tsx state with checkout info

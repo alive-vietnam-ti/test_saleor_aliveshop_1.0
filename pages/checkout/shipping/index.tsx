@@ -44,7 +44,7 @@ const ShippingPage: React.FC<React.PropsWithChildren<IShippingPageProps>> = ({
     } else {
       setFormLoadState('loaded');
     }
-  }, [checkoutProcess, shoppingCart]);
+  }, [checkoutProcess, shoppingCart, setFlashMessages, router]);
 
   if (formLoadState === 'loading') {
     fragment = <p>Loading form</p>;

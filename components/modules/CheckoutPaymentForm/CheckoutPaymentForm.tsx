@@ -1,63 +1,63 @@
 import * as React from 'react';
-import styles from './CheckoutShippingForm.module.scss';
-import { apiCheckoutShippingMethodUpdate } from '@/utils/api/checkout';
+import styles from './CheckoutPaymentForm.module.scss';
+import { apiCheckoutPaymentCreate } from '@/utils/api/checkout';
 
 import { useRouter } from 'next/router';
 
-const ShippingFormInput = ({ shippingMethodId, shippingMethodName }) => {
+const PaymentFormInput = ({ paymentMethodId, paymentMethodName }) => {
   return (
-    <div key={shippingMethodId} className={styles.formGroup}>
+    <div key={paymentMethodId} className={styles.formGroup}>
       <label
         className={styles.label}
-        htmlFor={`${shippingMethodName}-${shippingMethodId}`}
+        htmlFor={`${paymentMethodName}-${paymentMethodId}`}
       >
         <input
           className={styles.input}
           type="radio"
-          id={`${shippingMethodName}-${shippingMethodId}`}
-          name="shippingMethod"
-          value={shippingMethodId}
+          id={`${paymentMethodName}-${paymentMethodId}`}
+          name="paymentMethod"
+          value={paymentMethodId}
         ></input>
-        <span className={styles.pseudoLabel}>{shippingMethodName}</span>
+        <span className={styles.pseudoLabel}>{paymentMethodName}</span>
       </label>
     </div>
   );
 };
 
-export const CheckoutShippingForm: React.FC = ({
-  availableShippingMethods,
+export const CheckoutPaymentForm: React.FC = ({
+  availablePaymentMethods,
   apiEndpoint,
   checkoutId,
-  appCheckoutUpdateShipping,
+  appCheckoutUpdatePayment,
 }): JSX.Element => {
   //state
-  const [shippingMethods, setShippingMethods] =
+  const [paymentMethods, setPaymentMethods] =
     React.useState<{ name: string; id: string }[] | null>(null);
   const [formErrors, setFormErrors] = React.useState<string[]>([]);
   //refs
-  const shippingMethodForm = React.useRef(null);
+  const paymentMethodForm = React.useRef(null);
 
   const router = useRouter();
 
-  const handleContinueToPayment = () => {
-    const shippingMethodFormData = new FormData(shippingMethodForm.current);
-    const shippingMethodFieldValues = Object.fromEntries(
-      shippingMethodFormData.entries()
+  const handleContinueToConfirm = () => {
+    const paymentMethodFormData = new FormData(paymentMethodForm.current);
+    const paymentMethodFieldValues = Object.fromEntries(
+      paymentMethodFormData.entries()
     );
     // Check user choose method
     // Perhaps put a formValid state here to disable the continue to payment button
-    if (Object.keys(shippingMethodFieldValues).length === 0) {
+    if (Object.keys(paymentMethodFieldValues).length === 0) {
       const formErrorsCpy = [...formErrors];
-      formErrorsCpy.push('Please choose a shipping method');
+      formErrorsCpy.push('Please choose a payment method');
       setFormErrors(formErrorsCpy);
     } else {
       setFormErrors([]);
     }
     // use the id for the shipping method to make api call
-    let dataCallResult = apiCheckoutShippingMethodUpdate(
+    const dataCallResult = apiCheckoutPaymentCreate(
       apiEndpoint,
       checkoutId,
-      shippingMethodFieldValues.shippingMethod
+      paymentMethodFieldValues.shippingMethod
     );
     dataCallResult
       .then((data) => {
@@ -70,9 +70,9 @@ export const CheckoutShippingForm: React.FC = ({
         } else {
           setFormErrors([]);
           // set app level checkout object here
-          appCheckoutUpdateShipping(data.data);
+          appCheckoutUpdatePayment(data.data);
           setTimeout(() => {
-            router.push('/checkout/payment');
+            router.push('/checkout/confirm');
           }, 0);
         }
       })
@@ -80,16 +80,16 @@ export const CheckoutShippingForm: React.FC = ({
   };
 
   React.useEffect(() => {
-    if (!availableShippingMethods) {
+    if (!availablePaymentMethods) {
       return;
     }
-    setShippingMethods(availableShippingMethods);
-  }, [availableShippingMethods]);
+    setPaymentMethods(availablePaymentMethods);
+  }, [availablePaymentMethods]);
 
   return (
     <div>
       <h2 className={styles.formHeading}>Shipping Method</h2>
-      <form noValidate ref={shippingMethodForm} className={styles.form}>
+      <form noValidate ref={paymentMethodForm} className={styles.form}>
         <div>
           <ul>
             {formErrors.length > 0 &&
@@ -98,19 +98,19 @@ export const CheckoutShippingForm: React.FC = ({
               })}
           </ul>
         </div>
-        {shippingMethods &&
-          shippingMethods.map((method) => {
+        {paymentMethods &&
+          paymentMethods.map((method) => {
             return (
-              <ShippingFormInput
+              <PaymentFormInput
                 key={method.id}
-                shippingMethodId={method.id}
-                shippingMethodName={method.name}
+                paymentMethodId={method.id}
+                paymentMethodName={method.name}
               />
             );
           })}
       </form>
-      <button className={styles.submitButton} onClick={handleContinueToPayment}>
-        Continue to Payment
+      <button className={styles.submitButton} onClick={handleContinueToConfirm}>
+        Continue to Confirm
       </button>
     </div>
   );
