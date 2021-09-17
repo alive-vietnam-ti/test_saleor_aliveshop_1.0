@@ -107,7 +107,7 @@ const shippingFormTemplate = {
     {
       type: 'select',
       name: 'country',
-      label: 'county, prefecture, state or province',
+      label: 'country',
       required: true,
       options: countries,
       validators: flowValidation(requiredValidator),
@@ -185,7 +185,7 @@ const billingFormTemplate = {
     {
       type: 'select',
       name: 'country',
-      label: 'county, prefecture, state or province',
+      label: 'country',
       required: true,
       options: countries,
       validators: flowValidation(requiredValidator),
