@@ -14,6 +14,7 @@ interface IPaymentPageProps {
 }
 
 const PaymentPage: React.FC<React.PropsWithChildren<IPaymentPageProps>> = (
+  appCheckoutUpdatePayment,
   pageProps
 ): JSX.Element => {
   const checkoutPageName = 'payment';
@@ -24,6 +25,7 @@ const PaymentPage: React.FC<React.PropsWithChildren<IPaymentPageProps>> = (
         <div className={`${styles.paymentContainer} container`}>
           <h1>Checkout Payment Page</h1>
           <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
+          <p>Form for Payment Options Here</p>
         </div>
       </main>
       <Footer>

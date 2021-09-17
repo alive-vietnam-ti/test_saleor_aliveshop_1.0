@@ -71,6 +71,10 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     setCheckoutProcess(checkoutProcessCopy);
   };
 
+  const appCheckoutUpdatePayment = (paymentData) => {
+    console.log(paymentData);
+  };
+
   const appCheckoutUpdateShipping = (
     checkout: ICheckoutShippingMethodUpdate
   ): void => {
@@ -212,6 +216,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     setFavVisible,
     appCheckoutCreate,
     appCheckoutUpdateShipping,
+    appCheckoutUpdatePayment,
     checkoutProcess,
     ...pageProps,
   };

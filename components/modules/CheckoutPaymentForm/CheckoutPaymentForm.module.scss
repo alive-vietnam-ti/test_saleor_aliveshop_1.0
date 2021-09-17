@@ -1,0 +1,52 @@
+@import '@/styles/vars';
+.formHeading {
+  font-size: 1.6rem;
+}
+.form {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.formGroup {
+  background-color: $lightest-grey;
+  margin: 0.8rem 0;
+  min-width: 100%;
+  min-height: 3rem;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+.label {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  text-transform: capitalize;
+  border: $lightest-grey solid 2px;
+  &:focus-within {
+    background-color: $lightest-brand;
+    border: $brand solid 2px;
+  }
+}
+.input {
+  border: none;
+  margin-left: 0.5rem;
+  outline: none;
+}
+.pseudoLabel {
+  padding: 0 0.5rem;
+}
+
+.submitButton {
+  width: 15rem;
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  border: 2px solid $brand;
+  text-transform: uppercase;
+  font-size: 1rem;
+  font-weight: 900;
+  background-color: $brand;
+  color: white;
+}

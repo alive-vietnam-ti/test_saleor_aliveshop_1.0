@@ -179,4 +179,74 @@ function apiCheckoutShippingMethodUpdate(
   });
 } //apiCheckoutShippingMethodUpdate
 
-export { apiCheckoutCreate, apiCheckoutShippingMethodUpdate };
+function apiCheckoutPaymentCreate(
+  url: string,
+  checkoutId: string,
+  paymentMethodId: string,
+  token: string,
+  amount: number
+) {
+  const mutation = `
+    mutation {
+      checkoutPaymentCreate(
+        checkoutId: "${checkoutId}"
+          input: {
+            gateway: "${paymentMethodId}"
+            token: "${token}"
+            amount: ${amount}
+          }
+      ) {
+        payment {
+            id
+            chargeStatus
+        }
+        paymentErrors {
+            field
+            message
+        }
+      }
+    }
+    `;
+
+  const clientConfig = {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    },
+    body: JSON.stringify({
+      query: mutation,
+    }),
+  }; // clientConfig
+
+  return window.fetch(url, clientConfig).then(async (response) => {
+    const { data, errors } = await response.json();
+    if (response.ok) {
+      const responseObject = {
+        data: null,
+        errors: null,
+      };
+      const checkout = data?.checkoutShippingMethodUpdate?.checkout;
+      if (checkout) {
+        responseObject.data = checkout;
+        return responseObject;
+      } else {
+        const apiErrors = data?.checkoutShippingMethodUpdate?.checkoutErrors;
+        responseObject.errors = apiErrors;
+        // calling function must check for field errors
+        return responseObject;
+      }
+    } else {
+      const error = new Error(
+        `\nStatus Code: ${response.status}\nError Details: ` +
+          errors?.map((e: any) => e.message).join('\n') ?? 'unknown'
+      );
+      return Promise.reject(error);
+    }
+  });
+} // apiCheckoutPaymentCreate
+
+export {
+  apiCheckoutCreate,
+  apiCheckoutShippingMethodUpdate,
+  apiCheckoutPaymentCreate,
+};
