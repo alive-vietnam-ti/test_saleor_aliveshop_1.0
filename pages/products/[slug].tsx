@@ -493,15 +493,15 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
   }, [numAttributeOptionsOnPage, customerSelected]);
 
   React.useEffect(() => {
-    const productsFavCopy:string[] = [...productsFav];
-    const index:any = productsFavCopy.find((e, index) => {
+    const productsFavCopy: string[] = [...productsFav];
+    const index: any = productsFavCopy.find((e, index) => {
       return e.id === product.id;
     });
-    if(productsFavCopy.indexOf(index) > -1) setIsFav(true);
+    if (productsFavCopy.indexOf(index) > -1) setIsFav(true);
     else setIsFav(false);
   }, [productsFav]);
 
-  const handleAddToFav = (e:any) => {
+  const handleAddToFav = (e: any) => {
     e.preventDefault();
     const favItem = {
       id: product.id,
@@ -511,8 +511,8 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
       thumbnailAlt: product.images[0].alt,
     };
     toggleProductInFav(favItem);
-  }
-  
+  };
+
   return (
     <>
       <div style={{ display: 'flex' }}>
@@ -536,7 +536,7 @@ const ProductDetail: React.FC<React.PropsWithChildren<IProductDetailProps>> = ({
             Add to Cart
           </button>
           <button onClick={handleAddToFav}>
-            { isFav ? `Remove from favorites` : 'Favorite' }
+            {isFav ? `Remove from favorites` : 'Favorite'}
           </button>
         </div>
       </div>
@@ -569,7 +569,6 @@ const ProductDetailWrapper: React.FC<React.PropsWithChildren<IPageProps>> = ({
     return <Loading />;
   } else if (status === 'rejected') {
     return <ProductLoadErrorFallback error={error} />;
-    return <p>Product Detail Rejected</p>;
   } else if (status == 'resolved') {
     return <ProductDetail {...pageProps} product={data} />;
   } else {
