@@ -1,9 +1,11 @@
 import * as React from 'react';
-import Select from 'react-select';
-import styles from './AddressForm.module.scss';
+import styles from './CheckoutAddressForm.module.scss';
 import { countries } from '@/utils/countries';
-import { apiCheckoutCreate } from '@/utils/api/checkout';
 import { useRouter } from 'next/router';
+// REFACTOR -->  client and useAsync imports
+import { useAsync } from '@/utils/custom-hooks';
+import { client } from '@/utils/api/api-client';
+import { Loading } from '@/components/elements/Loading';
 
 /* Validators and Validator flow builder */
 
@@ -218,10 +220,6 @@ const Input = ({
   const { errors } = validators({ value: value, errors: [] });
   const displayErrorMessage = (wasSubmitted || touched) && errors.length > 0;
 
-  React.useEffect(() => {
-    console.log(`input use effect triggered for ${name}`);
-  }, [errors]);
-
   switch (type) {
     case 'text':
       return (
@@ -301,26 +299,25 @@ const Input = ({
   }
 };
 
-export const AddressForm: React.FC = ({
+const CheckoutAddressForm: React.FC = ({
   apiEndpoint,
   shoppingCart,
   appCheckoutCreate,
+  serverFieldErrors,
+  run,
+  data,
+  setSubmittedFormValues,
+  submittedFormValues,
 }): JSX.Element => {
-  const [wasSubmitted, setWasSubmitted] = React.useState(false);
   const [billingSameAsShipping, setBillingSameAsShipping] =
     React.useState(false);
   const [formErrors, setFormErrors] = React.useState({
     hasErrors: false,
     errorMsg: '',
   });
-  const shippingForm = React.useRef(null);
-  const billingForm = React.useRef(null);
-  const router = useRouter();
 
-  console.log('API endpoint in address Form', apiEndpoint);
-  console.log('shopping Cart in address Form', shoppingCart);
-
-  console.log(apiEndpoint);
+  const shippingForm = React.useRef(undefined);
+  const billingForm = React.useRef(undefined);
 
   function makeLinesArray(shoppingCart) {
     const lines = [];
@@ -350,56 +347,130 @@ export const AddressForm: React.FC = ({
     const shippingFormData = new FormData(shippingForm.current);
     const shippingFieldValues = Object.fromEntries(shippingFormData.entries());
     const customerEmail = shippingFieldValues.email;
-    delete shippingFieldValues['email'];
+    const submittedFormValuesCopy = JSON.parse(
+      JSON.stringify(submittedFormValues)
+    );
+    submittedFormValuesCopy.shippingFormValues = shippingFieldValues;
 
     let billingFieldValues: any;
     if (billingSameAsShipping) {
       billingFieldValues = { ...shippingFieldValues };
+      delete billingFieldValues['email'];
     } else {
       const billingFormData = new FormData(billingForm.current);
       billingFieldValues = Object.fromEntries(billingFormData.entries());
     }
+    submittedFormValuesCopy.billingFormValues = billingFieldValues;
+    setSubmittedFormValues(submittedFormValuesCopy);
+    // set Wrapper state for field values here
 
     /* Notes 
     - Need to handle validation here as well as in Input 
     - Need to build checkout object and submiti it to the server
     - Checkout obect  state should be held in _app.tsx
     - Need to handle backend server errros
+    - Need to store form values in global and LocalStorage so:
+    1. user can use back buttons in proccees
+    2. confirmation step works 
     */
     const lines = makeLinesArray(shoppingCart);
 
-    const preCheckoutCreateValues = {
+    const preCheckoutValues = {
       email: customerEmail,
       lines: lines,
       shippingAddress: shippingFieldValues,
       billingAddress: billingFieldValues,
     };
-    console.log('preCheckoutCreateValues', preCheckoutCreateValues);
-    let dataCallResult = apiCheckoutCreate(
-      apiEndpoint,
-      preCheckoutCreateValues
-    );
-    dataCallResult
-      .then((data) => {
-        if (data.errors) {
-          //Need to handle field errors here and change the
-          const errorMessage = mapBackFieldErrorsToLabels(
-            data.errors,
-            shippingFormTemplate
-          );
-          setFormErrors({ hasErrors: true, errorMsg: errorMessage });
-        } else {
-          setFormErrors({ hasErrors: false, errorMsg: '' });
-          // no field errors so update _app.tsx state with checkout info
-          // move onto the next shipping page.
-          appCheckoutCreate(data.data);
-          setTimeout(() => {
-            router.push('/checkout/shipping');
-          }, 0);
+    console.log('chkAddressForm: preCheckoutValues', preCheckoutValues);
+
+    // REFACTOR --> construct mutation here instead
+
+    // construct Config for client
+    function constructLines(lines) {
+      let returnLinesString = '[';
+      lines.forEach((item) => {
+        const itemString = `{quantity: ${item.quantity}, variantId: "${item.variantId}"},`;
+        returnLinesString += itemString;
+      });
+      returnLinesString += ']';
+      return returnLinesString;
+    }
+
+    const linesString = constructLines(preCheckoutValues.lines);
+
+    const gqlMutation = `
+      mutation {
+        checkoutCreate(
+          input: {
+            email: "${preCheckoutValues.email}"
+            lines: ${linesString}
+            shippingAddress: {
+              firstName: "${preCheckoutValues.shippingAddress.firstName}"
+              phone: "${preCheckoutValues.shippingAddress.phoneNumber}"
+              lastName: "${preCheckoutValues.shippingAddress.lastName}"
+              streetAddress1: "${preCheckoutValues.shippingAddress.streetAddress1}"
+              streetAddress2: "${preCheckoutValues.shippingAddress.streetAddress2}"
+              city: "${preCheckoutValues.shippingAddress.city}"
+              countryArea: "${preCheckoutValues.shippingAddress.countryArea}"
+              postalCode: "${preCheckoutValues.shippingAddress.postalCode}"
+              country: ${preCheckoutValues.shippingAddress.country}
+            }
+            billingAddress: {
+              firstName: "${preCheckoutValues.billingAddress.firstName}"
+              lastName: "${preCheckoutValues.billingAddress.lastName}"
+              streetAddress1: "${preCheckoutValues.billingAddress.streetAddress1}"
+              streetAddress2: "${preCheckoutValues.billingAddress.streetAddress2}"
+              city: "${preCheckoutValues.billingAddress.city}"
+              countryArea: "${preCheckoutValues.billingAddress.countryArea}"
+              postalCode: "${preCheckoutValues.billingAddress.postalCode}"
+              country: ${preCheckoutValues.billingAddress.country}
+            }
+          }
+        ) {
+          checkout {
+            id
+            token
+            totalPrice {
+              gross {
+                amount
+                currency
+              }
+            }
+            isShippingRequired
+            availableShippingMethods {
+              id
+              name
+            }
+            availablePaymentGateways {
+              id
+              name
+              config {
+                field
+                value
+              }
+            }
+          }
+          checkoutErrors {
+            field
+            code
+          }
         }
-      })
-      .catch((error) => console.error(error));
-  }
+      }
+    `;
+
+    const clientConfig = {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json;charset=UTF-8',
+      },
+      body: JSON.stringify({
+        query: gqlMutation,
+      }),
+    }; // clientConfig
+
+    console.log('chkAddressForm: clientConfig', clientConfig);
+    run(client(apiEndpoint, clientConfig));
+  } // handleContinueToShipping
 
   function handleSameAsShipping() {
     setBillingSameAsShipping(!billingSameAsShipping);
@@ -460,3 +531,75 @@ export const AddressForm: React.FC = ({
     </div>
   );
 };
+
+export const CheckoutAddressFormWrapper: React.FC = ({
+  apiEndpoint,
+  shoppingCart,
+  appCheckoutCreate,
+  checkoutProcess,
+  appCheckoutShippingFormValueUpdate,
+}): JSX.Element => {
+  const { status, data, error, run } = useAsync();
+  const [wasSubmittedSuccess, setWasSubmittedSuccess] = React.useState(false);
+  const [submittedFormValues, setSubmittedFormValues] = React.useState({
+    shippingFormValues: null,
+    billingFormValues: null,
+  });
+  const router = useRouter();
+
+  if (wasSubmittedSuccess) {
+    console.log('In wasSubmitted');
+    return <Loading />;
+  }
+
+  switch (status) {
+    case 'idle':
+      // Check for submitted on checkoutProcess (need shippingSubmitted: false, shippingAddressData: {})
+      console.log('In idle');
+      return (
+        <CheckoutAddressForm
+          apiEndpoint={apiEndpoint}
+          shoppingCart={shoppingCart}
+          appCheckoutCreate={appCheckoutCreate}
+          setSubmittedFormValues={setSubmittedFormValues}
+          submittedFormValues={submittedFormValues}
+          data={data}
+          run={run}
+        />
+      );
+    case 'pending':
+      console.log('In pending');
+      return <Loading />;
+    case 'rejected':
+      console.log('In error');
+      console.error(error);
+      return <p>Errors</p>;
+    case 'resolved':
+      console.log('In resolved', data);
+      if (data.data.checkoutCreate.checkoutErrors.length > 0) {
+        console.log('In resolved > checkoutErrors.length', data);
+        return (
+          <CheckoutAddressForm
+            apiEndpoint={apiEndpoint}
+            shoppingCart={shoppingCart}
+            appCheckoutCreate={appCheckoutCreate}
+            data={data}
+            run={run}
+          />
+        );
+      } else {
+        //call next page with timeout and router.push or replace
+        // store data in global and probably local storage
+        appCheckoutCreate(data.data.checkoutCreate.checkout);
+        setWasSubmittedSuccess(true);
+        appCheckoutShippingFormValueUpdate(submittedFormValues);
+        console.log('In resolved > no checkoutErrors', data);
+        setTimeout(() => {
+          router.replace('/checkout/shipping');
+        }, 10);
+        return <Loading />;
+      }
+    default:
+      return <p>Sorry, we are not sure what happened</p>;
+  } // end switch
+}; // CheckoutAddress Form Wrapper

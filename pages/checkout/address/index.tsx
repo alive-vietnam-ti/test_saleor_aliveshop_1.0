@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Head } from '@/components/modules/Head';
 import { Footer } from '@/components/modules/Footer';
-import { AddressForm } from '@/components/modules/AddressForm';
+import { CheckoutAddressFormWrapper } from '@/components/modules/CheckoutAddressForm';
 import { FooterBranding } from '@/components/elements/FooterBranding';
 import { CheckOutProcessTracker } from '@/components/elements/CheckOutProcessTracker';
 import styles from '@/styles/page-styles/Address.module.scss';
@@ -60,6 +60,7 @@ const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = ({
   apiEndpoint,
   appCheckoutCreate,
   shoppingCart,
+  appCheckoutShippingFormValueUpdate,
   ...pageProps
 }): JSX.Element => {
   const checkoutPageName = 'address';
@@ -78,10 +79,13 @@ const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = ({
     addressPageContent = (
       <>
         <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
-        <AddressForm
+        <CheckoutAddressFormWrapper
           apiEndpoint={apiEndpoint}
           shoppingCart={shoppingCart}
           appCheckoutCreate={appCheckoutCreate}
+          appCheckoutShippingFormValueUpdate={
+            appCheckoutShippingFormValueUpdate
+          }
         />
       </>
     );

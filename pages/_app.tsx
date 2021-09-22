@@ -40,6 +40,8 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
       checkoutId: '',
       checkoutToken: '',
       totalPrice: null,
+      shippingSubmitted: false,
+      shippingFormData: null,
       isShippingRequired: false,
       availableShippingMethods: null,
       shippingMethod: null,
@@ -58,6 +60,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
    */
 
   const appCheckoutCreate = (checkout: ICheckoutCreate): void => {
+    console.log('checkout', checkout);
     const checkoutProcessCopy = JSON.parse(JSON.stringify(checkoutProcess));
     checkoutProcessCopy.checkoutId = checkout.id;
     checkoutProcessCopy.checkoutToken = checkout.token;
@@ -69,6 +72,19 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
       checkout.availablePaymentGateways;
     checkoutProcessCopy.checkoutCreateResult = checkout;
     setCheckoutProcess(checkoutProcessCopy);
+  };
+
+  const appCheckoutShippingFormValueUpdate = (
+    submittedFormValues: any
+  ): void => {
+    const checkoutProcessCopy = JSON.parse(JSON.stringify(checkoutProcess));
+    checkoutProcessCopy.shippingSubmitted = true;
+    checkoutProcessCopy.shippingFormData = submittedFormValues;
+    setCheckoutProcess(checkoutProcessCopy);
+    console.log(
+      'appCheckoutShippingFormValueUpdate --> checkoutProcess',
+      checkoutProcessCopy
+    );
   };
 
   const appCheckoutUpdatePayment = (paymentData) => {
@@ -218,6 +234,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     appCheckoutUpdateShipping,
     appCheckoutUpdatePayment,
     checkoutProcess,
+    appCheckoutShippingFormValueUpdate,
     ...pageProps,
   };
 
