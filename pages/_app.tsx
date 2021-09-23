@@ -60,7 +60,6 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
    */
 
   const appCheckoutCreate = (checkout: ICheckoutCreate): void => {
-    console.log('checkout', checkout);
     const checkoutProcessCopy = JSON.parse(JSON.stringify(checkoutProcess));
     checkoutProcessCopy.checkoutId = checkout.id;
     checkoutProcessCopy.checkoutToken = checkout.token;
@@ -72,6 +71,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
       checkout.availablePaymentGateways;
     checkoutProcessCopy.checkoutCreateResult = checkout;
     setCheckoutProcess(checkoutProcessCopy);
+    console.log('appCheckoutCreate', checkoutProcessCopy);
   };
 
   const appCheckoutShippingFormValueUpdate = (

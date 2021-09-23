@@ -590,14 +590,14 @@ export const CheckoutAddressFormWrapper: React.FC = ({
       } else {
         //call next page with timeout and router.push or replace
         // store data in global and probably local storage
+        appCheckoutShippingFormValueUpdate(submittedFormValues);
         appCheckoutCreate(data.data.checkoutCreate.checkout);
         setWasSubmittedSuccess(true);
-        appCheckoutShippingFormValueUpdate(submittedFormValues);
         console.log('In resolved > no checkoutErrors', data);
         setTimeout(() => {
-          router.replace('/checkout/shipping');
+          router.push('/checkout/shipping');
         }, 10);
-        return <Loading />;
+        break;
       }
     default:
       return <p>Sorry, we are not sure what happened</p>;
