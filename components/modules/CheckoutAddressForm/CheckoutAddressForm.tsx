@@ -1,199 +1,17 @@
 import * as React from 'react';
 import styles from './CheckoutAddressForm.module.scss';
-import { countries } from '@/utils/countries';
+import {
+  shippingFormTemplate,
+  billingFormTemplate,
+} from './CheckoutAddressFormTemplates';
+import {
+  makeCheckoutCreateMutation,
+  constructLines,
+} from './CheckoutAddressFormUtils';
 import { useRouter } from 'next/router';
-// REFACTOR -->  client and useAsync imports
 import { useAsync } from '@/utils/custom-hooks';
 import { client } from '@/utils/api/api-client';
 import { Loading } from '@/components/elements/Loading';
-
-/* Validators and Validator flow builder */
-
-const requiredValidator = (valErrsObj: { value: string; errors: string[] }) => {
-  const valErrsObjCopy = JSON.parse(JSON.stringify(valErrsObj));
-  if (!valErrsObjCopy.value) {
-    const error = 'This field is required';
-    valErrsObjCopy.errors.push(error);
-  }
-
-  return valErrsObjCopy;
-};
-
-const noValidationValidator = (valErrsObj: {
-  value: string;
-  errors: string[];
-}) => {
-  const valErrsObjCopy = JSON.parse(JSON.stringify(valErrsObj));
-  return valErrsObjCopy;
-};
-
-const flow = (func1: any, func2: any) => (x: any) => func2(func1(x));
-const flowValidation = (...args: any[]) => args.reduce(flow, (x: any) => x);
-
-/* formTemplate Object */
-
-const shippingFormTemplate = {
-  formTitle: 'Shipping Address',
-  formId: 'shipping-address',
-  fields: [
-    {
-      type: 'text',
-      name: 'lastName',
-      label: 'family name',
-      required: true,
-      validators: flowValidation(requiredValidator),
-    },
-    {
-      type: 'text',
-      name: 'firstName',
-      label: 'given name',
-      required: true,
-      validators: flowValidation(requiredValidator),
-    },
-    {
-      type: 'text',
-      name: 'email',
-      label: 'email',
-      required: true,
-      validators: flowValidation(requiredValidator),
-    },
-    {
-      type: 'text',
-      name: 'companyName',
-      label: 'company name',
-      required: false,
-      validators: flowValidation(noValidationValidator),
-    },
-    {
-      type: 'text',
-      name: 'phoneNumber',
-      label: ' phone number',
-      required: false,
-      validators: flowValidation(noValidationValidator),
-    },
-    {
-      type: 'text',
-      name: 'streetAddress1',
-      label: 'street address 1',
-      required: true,
-      validators: flowValidation(requiredValidator),
-    },
-    {
-      type: 'text',
-      name: 'streetAddress2',
-      label: 'street address 2',
-      required: false,
-      validators: flowValidation(noValidationValidator),
-    },
-    {
-      type: 'text',
-      name: 'city',
-      label: 'village, town or city',
-      required: true,
-      validators: flowValidation(requiredValidator),
-    },
-    {
-      type: 'text',
-      name: 'countryArea',
-      label: 'county, prefecture, state or province',
-      required: true,
-      validators: flowValidation(noValidationValidator),
-    },
-    {
-      type: 'text',
-      name: 'postalCode',
-      label: 'postal code',
-      required: true,
-      validators: flowValidation(requiredValidator),
-    },
-    {
-      type: 'select',
-      name: 'country',
-      label: 'country',
-      required: true,
-      options: countries,
-      validators: flowValidation(requiredValidator),
-    },
-  ],
-};
-
-const billingFormTemplate = {
-  formTitle: 'Billing Address',
-  formId: 'billing-address',
-  fields: [
-    {
-      type: 'text',
-      name: 'lastName',
-      label: 'family name',
-      required: true,
-      validators: flowValidation(requiredValidator),
-    },
-    {
-      type: 'text',
-      name: 'firstName',
-      label: 'given name',
-      required: true,
-      validators: flowValidation(requiredValidator),
-    },
-    {
-      type: 'text',
-      name: 'companyName',
-      label: 'company name',
-      required: false,
-      validators: flowValidation(noValidationValidator),
-    },
-    {
-      type: 'text',
-      name: 'phoneNumber',
-      label: ' phone number',
-      required: false,
-      validators: flowValidation(noValidationValidator),
-    },
-    {
-      type: 'text',
-      name: 'streetAddress1',
-      label: 'street address 1',
-      required: true,
-      validators: flowValidation(requiredValidator),
-    },
-    {
-      type: 'text',
-      name: 'streetAddress2',
-      label: 'street address 2',
-      required: false,
-      validators: flowValidation(noValidationValidator),
-    },
-    {
-      type: 'text',
-      name: 'city',
-      label: 'village, town or city',
-      required: true,
-      validators: flowValidation(requiredValidator),
-    },
-    {
-      type: 'text',
-      name: 'countryArea',
-      label: 'county, prefecture, state or province',
-      required: true,
-      validators: flowValidation(noValidationValidator),
-    },
-    {
-      type: 'text',
-      name: 'postalCode',
-      label: 'postal code',
-      required: true,
-      validators: flowValidation(requiredValidator),
-    },
-    {
-      type: 'select',
-      name: 'country',
-      label: 'country',
-      required: true,
-      options: countries,
-      validators: flowValidation(requiredValidator),
-    },
-  ],
-};
 
 /* Input Component */
 const Input = ({
@@ -381,83 +199,11 @@ const CheckoutAddressForm: React.FC = ({
       shippingAddress: shippingFieldValues,
       billingAddress: billingFieldValues,
     };
-    console.log('chkAddressForm: preCheckoutValues', preCheckoutValues);
-
-    // REFACTOR --> construct mutation here instead
-
-    // construct Config for client
-    function constructLines(lines) {
-      let returnLinesString = '[';
-      lines.forEach((item) => {
-        const itemString = `{quantity: ${item.quantity}, variantId: "${item.variantId}"},`;
-        returnLinesString += itemString;
-      });
-      returnLinesString += ']';
-      return returnLinesString;
-    }
-
     const linesString = constructLines(preCheckoutValues.lines);
-
-    const gqlMutation = `
-      mutation {
-        checkoutCreate(
-          input: {
-            email: "${preCheckoutValues.email}"
-            lines: ${linesString}
-            shippingAddress: {
-              firstName: "${preCheckoutValues.shippingAddress.firstName}"
-              phone: "${preCheckoutValues.shippingAddress.phoneNumber}"
-              lastName: "${preCheckoutValues.shippingAddress.lastName}"
-              streetAddress1: "${preCheckoutValues.shippingAddress.streetAddress1}"
-              streetAddress2: "${preCheckoutValues.shippingAddress.streetAddress2}"
-              city: "${preCheckoutValues.shippingAddress.city}"
-              countryArea: "${preCheckoutValues.shippingAddress.countryArea}"
-              postalCode: "${preCheckoutValues.shippingAddress.postalCode}"
-              country: ${preCheckoutValues.shippingAddress.country}
-            }
-            billingAddress: {
-              firstName: "${preCheckoutValues.billingAddress.firstName}"
-              lastName: "${preCheckoutValues.billingAddress.lastName}"
-              streetAddress1: "${preCheckoutValues.billingAddress.streetAddress1}"
-              streetAddress2: "${preCheckoutValues.billingAddress.streetAddress2}"
-              city: "${preCheckoutValues.billingAddress.city}"
-              countryArea: "${preCheckoutValues.billingAddress.countryArea}"
-              postalCode: "${preCheckoutValues.billingAddress.postalCode}"
-              country: ${preCheckoutValues.billingAddress.country}
-            }
-          }
-        ) {
-          checkout {
-            id
-            token
-            totalPrice {
-              gross {
-                amount
-                currency
-              }
-            }
-            isShippingRequired
-            availableShippingMethods {
-              id
-              name
-            }
-            availablePaymentGateways {
-              id
-              name
-              config {
-                field
-                value
-              }
-            }
-          }
-          checkoutErrors {
-            field
-            code
-          }
-        }
-      }
-    `;
-
+    const gqlMutation = makeCheckoutCreateMutation(
+      linesString,
+      preCheckoutValues
+    );
     const clientConfig = {
       method: 'POST',
       headers: {
@@ -468,7 +214,6 @@ const CheckoutAddressForm: React.FC = ({
       }),
     }; // clientConfig
 
-    console.log('chkAddressForm: clientConfig', clientConfig);
     run(client(apiEndpoint, clientConfig));
   } // handleContinueToShipping
 
@@ -530,7 +275,7 @@ const CheckoutAddressForm: React.FC = ({
       <button onClick={handleContinueToShipping}>Continue to Shipping</button>
     </div>
   );
-};
+}; // CheckoutAddressForm
 
 export const CheckoutAddressFormWrapper: React.FC = ({
   apiEndpoint,
@@ -547,59 +292,59 @@ export const CheckoutAddressFormWrapper: React.FC = ({
   });
   const router = useRouter();
 
-  if (wasSubmittedSuccess) {
-    console.log('In wasSubmitted');
-    return <Loading />;
-  }
+  let returnJSX = <Loading />;
 
-  switch (status) {
-    case 'idle':
-      // Check for submitted on checkoutProcess (need shippingSubmitted: false, shippingAddressData: {})
-      console.log('In idle');
-      return (
-        <CheckoutAddressForm
-          apiEndpoint={apiEndpoint}
-          shoppingCart={shoppingCart}
-          appCheckoutCreate={appCheckoutCreate}
-          setSubmittedFormValues={setSubmittedFormValues}
-          submittedFormValues={submittedFormValues}
-          data={data}
-          run={run}
-        />
-      );
-    case 'pending':
-      console.log('In pending');
-      return <Loading />;
-    case 'rejected':
-      console.log('In error');
-      console.error(error);
-      return <p>Errors</p>;
-    case 'resolved':
-      console.log('In resolved', data);
-      if (data.data.checkoutCreate.checkoutErrors.length > 0) {
-        console.log('In resolved > checkoutErrors.length', data);
-        return (
+  React.useEffect(() => {
+    if (wasSubmittedSuccess) {
+      setTimeout(() => {
+        router.push('/checkout/shipping');
+      }, 10);
+    }
+  }, [router, wasSubmittedSuccess]);
+
+  if (!wasSubmittedSuccess) {
+    switch (status) {
+      case 'idle':
+        // Check for submitted on checkoutProcess (need shippingSubmitted: false, shippingAddressData: {})
+        returnJSX = (
           <CheckoutAddressForm
             apiEndpoint={apiEndpoint}
             shoppingCart={shoppingCart}
             appCheckoutCreate={appCheckoutCreate}
+            setSubmittedFormValues={setSubmittedFormValues}
+            submittedFormValues={submittedFormValues}
             data={data}
             run={run}
           />
         );
-      } else {
-        //call next page with timeout and router.push or replace
-        // store data in global and probably local storage
-        appCheckoutCreate(data.data.checkoutCreate.checkout);
-        setWasSubmittedSuccess(true);
-        appCheckoutShippingFormValueUpdate(submittedFormValues);
-        console.log('In resolved > no checkoutErrors', data);
-        setTimeout(() => {
-          router.replace('/checkout/shipping');
-        }, 10);
-        return <Loading />;
-      }
-    default:
-      return <p>Sorry, we are not sure what happened</p>;
-  } // end switch
+        break;
+      case 'pending':
+        break;
+      case 'rejected':
+        console.error(error);
+        returnJSX = <p>Errors</p>;
+        break;
+      case 'resolved':
+        if (data.data.checkoutCreate.checkoutErrors.length > 0) {
+          returnJSX = (
+            <CheckoutAddressForm
+              apiEndpoint={apiEndpoint}
+              shoppingCart={shoppingCart}
+              appCheckoutCreate={appCheckoutCreate}
+              data={data}
+              run={run}
+            />
+          );
+        } else {
+          appCheckoutShippingFormValueUpdate(submittedFormValues);
+          appCheckoutCreate(data.data.checkoutCreate.checkout);
+          setWasSubmittedSuccess(true);
+        }
+        break;
+      default:
+        returnJSX = <p>Sorry, we are not sure what happened</p>;
+        break;
+    } // end switch
+  }
+  return returnJSX;
 }; // CheckoutAddress Form Wrapper
