@@ -16,13 +16,15 @@ interface IAddressPageProps {
   handleAddToCart: (id: string) => void;
 }
 
+function customerStatusInit();
+
 function customerStatusReducer(state, action) {
   switch (action.type) {
     case 'undecided':
       return { status: action.type, userEmail: '' };
     case 'anon':
       return { status: action.type, userEmail: '' };
-    case 'loggedin':
+    case 'loggedIn':
       return { status: action.type, userEmail: action.email.trim() };
     default:
       throw new Error(`Incorrect type for customer status, ${action.type} `);
@@ -61,45 +63,58 @@ const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = ({
   appCheckoutCreate,
   shoppingCart,
   appCheckoutShippingFormValueUpdate,
+  loginStatus,
   ...pageProps
 }): JSX.Element => {
   const checkoutPageName = 'address';
   const [customerStatus, customerStatusDispatch] = React.useReducer(
     customerStatusReducer,
-    { status: 'undecided', userEmail: '' }
+    { status: 'undecided', userEmail: '' },
+    (initialState: any) => {
+      if (loginStatus.status === 'loggedIn') {
+        return { status: loginStatus.status, email: loginStatus.email };
+      }
+      return initialState;
+    }
   );
   const { status } = customerStatus;
   let addressPageContent: any;
 
-  if (status === 'undecided') {
-    addressPageContent = (
-      <AnonOrLogin customerStatusDispatch={customerStatusDispatch} />
-    );
-  } else if (status === 'anon') {
-    addressPageContent = (
-      <>
-        <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
-        <CheckoutAddressFormWrapper
-          apiEndpoint={apiEndpoint}
-          shoppingCart={shoppingCart}
-          appCheckoutCreate={appCheckoutCreate}
-          appCheckoutShippingFormValueUpdate={
-            appCheckoutShippingFormValueUpdate
-          }
-        />
-      </>
-    );
-  } else if (status === 'loggedin') {
-    addressPageContent = (
-      <>
-        <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
-        <h1>Welcome Back Username here </h1>
-        <p>Component for Logged in User Here</p>
-      </>
-    );
-  } else {
-    addressPageContent = <p>Error</p>;
-  }
+  switch (status) {
+    case 'undecided':
+      addressPageContent = (
+        <AnonOrLogin customerStatusDispatch={customerStatusDispatch} />
+      );
+      break;
+    case 'anon':
+      addressPageContent = (
+        <>
+          <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
+          <CheckoutAddressFormWrapper
+            apiEndpoint={apiEndpoint}
+            shoppingCart={shoppingCart}
+            appCheckoutCreate={appCheckoutCreate}
+            appCheckoutShippingFormValueUpdate={
+              appCheckoutShippingFormValueUpdate
+            }
+          />
+        </>
+      );
+      break;
+    case 'loggedIn':
+      addressPageContent = (
+        <>
+          <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
+          <h1>Welcome Back Username here </h1>
+          <p>Component for Logged in User Here</p>
+        </>
+      );
+      break;
+
+    default:
+      addressPageContent = <p>Error</p>;
+      break;
+  } // switch
 
   return (
     <>

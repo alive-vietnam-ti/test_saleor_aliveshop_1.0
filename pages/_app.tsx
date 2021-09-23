@@ -23,6 +23,10 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const checkoutProcessKey = 'checkout';
   const [flashMessages, setFlashMessages] = React.useState<string[]>([]);
   const [loginOrRegister, setLoginOrRegister] = React.useState('login');
+  const [loginStatus, setLoginStatus] = React.useState({
+    status: 'loggedOut', // or loggedIn
+    email: '',
+  });
   const [cartVisible, setCartVisible] = React.useState(false);
   const [favVisible, setFavVisible] = React.useState(false);
   const [showLoginModal, setShowLoginModal] = React.useState(false);
@@ -71,7 +75,6 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
       checkout.availablePaymentGateways;
     checkoutProcessCopy.checkoutCreateResult = checkout;
     setCheckoutProcess(checkoutProcessCopy);
-    console.log('appCheckoutCreate', checkoutProcessCopy);
   };
 
   const appCheckoutShippingFormValueUpdate = (
@@ -81,10 +84,6 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     checkoutProcessCopy.shippingSubmitted = true;
     checkoutProcessCopy.shippingFormData = submittedFormValues;
     setCheckoutProcess(checkoutProcessCopy);
-    console.log(
-      'appCheckoutShippingFormValueUpdate --> checkoutProcess',
-      checkoutProcessCopy
-    );
   };
 
   const appCheckoutUpdatePayment = (paymentData) => {
@@ -94,15 +93,10 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const appCheckoutUpdateShipping = (
     checkout: ICheckoutShippingMethodUpdate
   ): void => {
-    console.log('appCheckoutUpdateShippingMethod --> checkout', checkout);
     const checkoutProcessCopy = JSON.parse(JSON.stringify(checkoutProcess));
     checkoutProcessCopy.totalPrice = checkout.totalPrice;
     checkoutProcessCopy.shippingMethod = checkout.shippingMethod;
     checkoutProcessCopy.checkoutShippingMethodUpdateResult = checkout;
-    console.log(
-      'appCheckoutUpdateShippingMethod --> updated checkoutProcess',
-      checkoutProcessCopy
-    );
     setCheckoutProcess(checkoutProcessCopy);
   };
 
@@ -221,6 +215,8 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     apiEndpoint: API_ENDPOINT,
     setFlashMessages,
     flashMessages,
+    loginStatus,
+    setLoginStatus,
     addToCart,
     toggleProductInFav,
     productsFav,

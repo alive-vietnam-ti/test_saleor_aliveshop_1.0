@@ -547,59 +547,59 @@ export const CheckoutAddressFormWrapper: React.FC = ({
   });
   const router = useRouter();
 
-  if (wasSubmittedSuccess) {
-    console.log('In wasSubmitted');
-    return <Loading />;
-  }
+  let returnJSX = <Loading />;
 
-  switch (status) {
-    case 'idle':
-      // Check for submitted on checkoutProcess (need shippingSubmitted: false, shippingAddressData: {})
-      console.log('In idle');
-      return (
-        <CheckoutAddressForm
-          apiEndpoint={apiEndpoint}
-          shoppingCart={shoppingCart}
-          appCheckoutCreate={appCheckoutCreate}
-          setSubmittedFormValues={setSubmittedFormValues}
-          submittedFormValues={submittedFormValues}
-          data={data}
-          run={run}
-        />
-      );
-    case 'pending':
-      console.log('In pending');
-      return <Loading />;
-    case 'rejected':
-      console.log('In error');
-      console.error(error);
-      return <p>Errors</p>;
-    case 'resolved':
-      console.log('In resolved', data);
-      if (data.data.checkoutCreate.checkoutErrors.length > 0) {
-        console.log('In resolved > checkoutErrors.length', data);
-        return (
+  React.useEffect(() => {
+    if (wasSubmittedSuccess) {
+      setTimeout(() => {
+        router.push('/checkout/shipping');
+      }, 0);
+    }
+  }, [router, wasSubmittedSuccess]);
+
+  if (!wasSubmittedSuccess) {
+    switch (status) {
+      case 'idle':
+        // Check for submitted on checkoutProcess (need shippingSubmitted: false, shippingAddressData: {})
+        returnJSX = (
           <CheckoutAddressForm
             apiEndpoint={apiEndpoint}
             shoppingCart={shoppingCart}
             appCheckoutCreate={appCheckoutCreate}
+            setSubmittedFormValues={setSubmittedFormValues}
+            submittedFormValues={submittedFormValues}
             data={data}
             run={run}
           />
         );
-      } else {
-        //call next page with timeout and router.push or replace
-        // store data in global and probably local storage
-        appCheckoutShippingFormValueUpdate(submittedFormValues);
-        appCheckoutCreate(data.data.checkoutCreate.checkout);
-        setWasSubmittedSuccess(true);
-        console.log('In resolved > no checkoutErrors', data);
-        setTimeout(() => {
-          router.push('/checkout/shipping');
-        }, 10);
         break;
-      }
-    default:
-      return <p>Sorry, we are not sure what happened</p>;
-  } // end switch
+      case 'pending':
+        break;
+      case 'rejected':
+        console.error(error);
+        returnJSX = <p>Errors</p>;
+        break;
+      case 'resolved':
+        if (data.data.checkoutCreate.checkoutErrors.length > 0) {
+          returnJSX = (
+            <CheckoutAddressForm
+              apiEndpoint={apiEndpoint}
+              shoppingCart={shoppingCart}
+              appCheckoutCreate={appCheckoutCreate}
+              data={data}
+              run={run}
+            />
+          );
+        } else {
+          appCheckoutShippingFormValueUpdate(submittedFormValues);
+          appCheckoutCreate(data.data.checkoutCreate.checkout);
+          setWasSubmittedSuccess(true);
+        }
+        break;
+      default:
+        returnJSX = <p>Sorry, we are not sure what happened</p>;
+        break;
+    } // end switch
+  }
+  return returnJSX;
 }; // CheckoutAddress Form Wrapper
