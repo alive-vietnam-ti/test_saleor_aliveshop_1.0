@@ -6,7 +6,6 @@ import { FooterBranding } from '@/components/elements/FooterBranding';
 import { CheckOutProcessTracker } from '@/components/elements/CheckOutProcessTracker';
 import styles from '@/styles/page-styles/Address.module.scss';
 import { LoginRegistrationForm } from '@/components/modules/LoginRegistrationForm';
-import { useRouter } from 'next/router';
 
 interface IAddressPageProps {
   apiEndpoint: string;
