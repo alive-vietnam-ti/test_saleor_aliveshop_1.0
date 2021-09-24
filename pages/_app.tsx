@@ -63,7 +63,10 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
    * Checkout process logic
    */
 
-  const appCheckoutCreate = (checkout: ICheckoutCreate): void => {
+  const appCheckoutCreate = (
+    checkout: ICheckoutCreate,
+    submittedFormValues: any
+  ): void => {
     const checkoutProcessCopy = JSON.parse(JSON.stringify(checkoutProcess));
     checkoutProcessCopy.checkoutId = checkout.id;
     checkoutProcessCopy.checkoutToken = checkout.token;
@@ -74,16 +77,13 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     checkoutProcessCopy.availablePaymentGateways =
       checkout.availablePaymentGateways;
     checkoutProcessCopy.checkoutCreateResult = checkout;
-    setCheckoutProcess(checkoutProcessCopy);
-  };
-
-  const appCheckoutShippingFormValueUpdate = (
-    submittedFormValues: any
-  ): void => {
-    const checkoutProcessCopy = JSON.parse(JSON.stringify(checkoutProcess));
     checkoutProcessCopy.shippingSubmitted = true;
     checkoutProcessCopy.shippingFormData = submittedFormValues;
     setCheckoutProcess(checkoutProcessCopy);
+    console.log(
+      'app.tsx --> appCheckoutCreate: copy of checkoutProcss: ',
+      checkoutProcessCopy
+    );
   };
 
   const appCheckoutUpdatePayment = (paymentData) => {
@@ -230,7 +230,6 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     appCheckoutUpdateShipping,
     appCheckoutUpdatePayment,
     checkoutProcess,
-    appCheckoutShippingFormValueUpdate,
     ...pageProps,
   };
 

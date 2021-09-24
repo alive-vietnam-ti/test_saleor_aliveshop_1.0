@@ -63,6 +63,7 @@ const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = ({
   shoppingCart,
   appCheckoutShippingFormValueUpdate,
   loginStatus,
+  checkoutProcess,
   ...pageProps
 }): JSX.Element => {
   const checkoutPageName = 'address';
@@ -78,42 +79,64 @@ const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = ({
   );
   const { status } = customerStatus;
   let addressPageContent: any;
+  // check if checkoutProcess.shippingSubmitted is true and if true
+  // render the form with submitted values mapped to a copy (lodash deep copy)
+  // and input will have values mapped to
+  if (checkoutProcess.shippingSubmitted && status === 'undecided') {
+    addressPageContent = (
+      <>
+        <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
+        <CheckoutAddressFormWrapper
+          apiEndpoint={apiEndpoint}
+          shoppingCart={shoppingCart}
+          appCheckoutCreate={appCheckoutCreate}
+          appCheckoutShippingFormValueUpdate={
+            appCheckoutShippingFormValueUpdate
+          }
+        />
+      </>
+    );
+    /*
+  /* NOTE --> Probably need and if else here to cheeck checkoutProcesss.shippingSubmitted && 'loggedIn'
+  */
+  } else {
+    // new checkout process started
+    switch (status) {
+      case 'undecided':
+        addressPageContent = (
+          <AnonOrLogin customerStatusDispatch={customerStatusDispatch} />
+        );
+        break;
+      case 'anon':
+        addressPageContent = (
+          <>
+            <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
+            <CheckoutAddressFormWrapper
+              apiEndpoint={apiEndpoint}
+              shoppingCart={shoppingCart}
+              appCheckoutCreate={appCheckoutCreate}
+              appCheckoutShippingFormValueUpdate={
+                appCheckoutShippingFormValueUpdate
+              }
+            />
+          </>
+        );
+        break;
+      case 'loggedIn':
+        addressPageContent = (
+          <>
+            <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
+            <h1>Welcome Back Username here </h1>
+            <p>Component for Logged in User Here</p>
+          </>
+        );
+        break;
 
-  switch (status) {
-    case 'undecided':
-      addressPageContent = (
-        <AnonOrLogin customerStatusDispatch={customerStatusDispatch} />
-      );
-      break;
-    case 'anon':
-      addressPageContent = (
-        <>
-          <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
-          <CheckoutAddressFormWrapper
-            apiEndpoint={apiEndpoint}
-            shoppingCart={shoppingCart}
-            appCheckoutCreate={appCheckoutCreate}
-            appCheckoutShippingFormValueUpdate={
-              appCheckoutShippingFormValueUpdate
-            }
-          />
-        </>
-      );
-      break;
-    case 'loggedIn':
-      addressPageContent = (
-        <>
-          <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
-          <h1>Welcome Back Username here </h1>
-          <p>Component for Logged in User Here</p>
-        </>
-      );
-      break;
-
-    default:
-      addressPageContent = <p>Error</p>;
-      break;
-  } // switch
+      default:
+        addressPageContent = <p>Error</p>;
+        break;
+    } // switch
+  } // else
 
   return (
     <>
