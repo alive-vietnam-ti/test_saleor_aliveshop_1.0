@@ -1,14 +1,16 @@
 import styles from './FlashMessages.module.scss';
 import * as React from 'react';
 import { IFlashMessagesProps } from '@/common/types';
-import { useEffect } from 'react';
 
 export const FlashMessages = ({
   flashMessages,
   setFlashMessages,
 }: IFlashMessagesProps): JSX.Element => {
   let messages;
-  let timer: number | undefined;
+
+  setTimeout(() => {
+    setFlashMessages([]);
+  }, 3000);
 
   if (flashMessages.length === 0) {
     messages = <></>;
@@ -23,13 +25,6 @@ export const FlashMessages = ({
       </div>
     );
   }
-
-  useEffect(() => {
-    timer = window.setTimeout(() => {
-      setFlashMessages([]);
-    }, 3000);
-    return () => window.clearTimeout(timer);
-  }, [flashMessages]);
 
   return messages;
 };
