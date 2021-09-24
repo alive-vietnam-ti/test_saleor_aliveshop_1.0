@@ -42,6 +42,10 @@ const ShippingPage: React.FC<React.PropsWithChildren<IShippingPageProps>> = ({
       }
       setFormLoadState('redirect');
     } else {
+      console.log(
+        'Shipping Page useEffect --> checkoutProcess',
+        checkoutProcess
+      );
       setFormLoadState('loaded');
     }
   }, [checkoutProcess, shoppingCart, setFlashMessages, router]);

@@ -19,6 +19,7 @@ const Input = ({
   type,
   name,
   label,
+  submittedValue,
   wasSubmitted,
   required,
   options,
@@ -28,6 +29,7 @@ const Input = ({
   type: string;
   name: string;
   label: string;
+  submittedValue: string;
   wasSubmitted: boolean;
   required: boolean;
   options?: any;
@@ -53,6 +55,7 @@ const Input = ({
             onChange={(event) => setValue(event.currentTarget.value)}
             onBlur={() => setTouched(true)}
             required={required}
+            defaultValue={submittedValue}
           />
           {displayErrorMessage ? (
             <ul>
@@ -85,6 +88,7 @@ const Input = ({
             onChange={(event) => setValue(event.currentTarget.value)}
             onBlur={() => setTouched(true)}
             required={required}
+            defaultValue={submittedValue}
           >
             {options.map((option: any) => {
               return (
@@ -126,6 +130,7 @@ const CheckoutAddressForm: React.FC = ({
   data,
   setSubmittedFormValues,
   submittedFormValues,
+  checkoutProcsss,
 }): JSX.Element => {
   const [billingSameAsShipping, setBillingSameAsShipping] =
     React.useState(false);
@@ -282,7 +287,6 @@ export const CheckoutAddressFormWrapper: React.FC = ({
   shoppingCart,
   appCheckoutCreate,
   checkoutProcess,
-  appCheckoutShippingFormValueUpdate,
 }): JSX.Element => {
   const { status, data, error, run } = useAsync();
   const [wasSubmittedSuccess, setWasSubmittedSuccess] = React.useState(false);
@@ -302,21 +306,24 @@ export const CheckoutAddressFormWrapper: React.FC = ({
     }
   }, [router, wasSubmittedSuccess]);
 
+  const addressForm = (
+    <CheckoutAddressForm
+      apiEndpoint={apiEndpoint}
+      shoppingCart={shoppingCart}
+      appCheckoutCreate={appCheckoutCreate}
+      setSubmittedFormValues={setSubmittedFormValues}
+      submittedFormValues={submittedFormValues}
+      checkoutProcess={checkoutProcess}
+      data={data}
+      run={run}
+    />
+  );
+
   if (!wasSubmittedSuccess) {
     switch (status) {
       case 'idle':
         // Check for submitted on checkoutProcess (need shippingSubmitted: false, shippingAddressData: {})
-        returnJSX = (
-          <CheckoutAddressForm
-            apiEndpoint={apiEndpoint}
-            shoppingCart={shoppingCart}
-            appCheckoutCreate={appCheckoutCreate}
-            setSubmittedFormValues={setSubmittedFormValues}
-            submittedFormValues={submittedFormValues}
-            data={data}
-            run={run}
-          />
-        );
+        returnJSX = addressForm;
         break;
       case 'pending':
         break;
@@ -326,18 +333,13 @@ export const CheckoutAddressFormWrapper: React.FC = ({
         break;
       case 'resolved':
         if (data.data.checkoutCreate.checkoutErrors.length > 0) {
-          returnJSX = (
-            <CheckoutAddressForm
-              apiEndpoint={apiEndpoint}
-              shoppingCart={shoppingCart}
-              appCheckoutCreate={appCheckoutCreate}
-              data={data}
-              run={run}
-            />
-          );
+          // NEED TO IMPEMENT THIS
+          returnJSX = addressForm;
         } else {
-          appCheckoutShippingFormValueUpdate(submittedFormValues);
-          appCheckoutCreate(data.data.checkoutCreate.checkout);
+          appCheckoutCreate(
+            data.data.checkoutCreate.checkout,
+            submittedFormValues
+          );
           setWasSubmittedSuccess(true);
         }
         break;
