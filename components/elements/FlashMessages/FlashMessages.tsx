@@ -8,9 +8,13 @@ export const FlashMessages = ({
 }: IFlashMessagesProps): JSX.Element => {
   let messages;
 
-  setTimeout(() => {
-    setFlashMessages([]);
-  }, 3000);
+  React.useEffect(() => {
+    if (flashMessages.length > 0) {
+      setTimeout(() => {
+        setFlashMessages([]);
+      }, 3000);
+    }
+  }, [setFlashMessages, flashMessages]);
 
   if (flashMessages.length === 0) {
     messages = <></>;

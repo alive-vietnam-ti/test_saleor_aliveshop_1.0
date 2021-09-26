@@ -79,6 +79,15 @@ const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = ({
   );
   const { status } = customerStatus;
   let addressPageContent: any;
+  const anonForm = (
+    <CheckoutAddressFormWrapper
+      apiEndpoint={apiEndpoint}
+      checkoutProcess={checkoutProcess}
+      shoppingCart={shoppingCart}
+      appCheckoutCreate={appCheckoutCreate}
+      appCheckoutShippingFormValueUpdate={appCheckoutShippingFormValueUpdate}
+    />
+  );
   // check if checkoutProcess.shippingSubmitted is true and if true
   // render the form with submitted values mapped to a copy (lodash deep copy)
   // and input will have values mapped to
@@ -86,14 +95,7 @@ const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = ({
     addressPageContent = (
       <>
         <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
-        <CheckoutAddressFormWrapper
-          apiEndpoint={apiEndpoint}
-          shoppingCart={shoppingCart}
-          appCheckoutCreate={appCheckoutCreate}
-          appCheckoutShippingFormValueUpdate={
-            appCheckoutShippingFormValueUpdate
-          }
-        />
+        {anonForm}
       </>
     );
     /*
@@ -111,14 +113,7 @@ const AddressPage: React.FC<React.PropsWithChildren<IAddressPageProps>> = ({
         addressPageContent = (
           <>
             <CheckOutProcessTracker checkoutPageName={checkoutPageName} />
-            <CheckoutAddressFormWrapper
-              apiEndpoint={apiEndpoint}
-              shoppingCart={shoppingCart}
-              appCheckoutCreate={appCheckoutCreate}
-              appCheckoutShippingFormValueUpdate={
-                appCheckoutShippingFormValueUpdate
-              }
-            />
+            {anonForm}
           </>
         );
         break;
