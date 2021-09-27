@@ -7,6 +7,7 @@ import {
 import {
   makeCheckoutCreateMutation,
   constructLines,
+  mapFormValuesToTemplate,
 } from './CheckoutAddressFormUtils';
 import { useRouter } from 'next/router';
 import { useAsync } from '@/utils/custom-hooks';
@@ -130,7 +131,7 @@ const CheckoutAddressForm: React.FC = ({
   data,
   setSubmittedFormValues,
   submittedFormValues,
-  checkoutProcsss,
+  checkoutProcesss,
 }): JSX.Element => {
   const [billingSameAsShipping, setBillingSameAsShipping] =
     React.useState(false);
@@ -185,17 +186,6 @@ const CheckoutAddressForm: React.FC = ({
     }
     submittedFormValuesCopy.billingFormValues = billingFieldValues;
     setSubmittedFormValues(submittedFormValuesCopy);
-    // set Wrapper state for field values here
-
-    /* Notes 
-    - Need to handle validation here as well as in Input 
-    - Need to build checkout object and submiti it to the server
-    - Checkout obect  state should be held in _app.tsx
-    - Need to handle backend server errros
-    - Need to store form values in global and LocalStorage so:
-    1. user can use back buttons in proccees
-    2. confirmation step works 
-    */
     const lines = makeLinesArray(shoppingCart);
 
     const preCheckoutValues = {
@@ -238,6 +228,13 @@ const CheckoutAddressForm: React.FC = ({
               formId={shippingFormTemplate.formId}
               type={field.type}
               name={field.name}
+              submittedValue={
+                checkoutProcesss.shippingSubmitted
+                  ? checkoutProcesss.shippingFormData.shippingFormValues[
+                      field.name
+                    ]
+                  : ''
+              }
               label={field.label}
               validators={field.validators}
               options={field.options}
@@ -268,6 +265,13 @@ const CheckoutAddressForm: React.FC = ({
                   formId={billingFormTemplate.formId}
                   type={field.type}
                   name={field.name}
+                  submittedValue={
+                    checkoutProcesss.shippingSubmitted
+                      ? checkoutProcesss.shippingFormData.billingFormValues[
+                          field.name
+                        ]
+                      : ''
+                  }
                   label={field.label}
                   validators={field.validators}
                   options={field.options}
@@ -304,7 +308,7 @@ export const CheckoutAddressFormWrapper: React.FC = ({
         router.push('/checkout/shipping');
       }, 10);
     }
-  }, [router, wasSubmittedSuccess]);
+  }, [wasSubmittedSuccess]);
 
   const addressForm = (
     <CheckoutAddressForm
@@ -313,7 +317,7 @@ export const CheckoutAddressFormWrapper: React.FC = ({
       appCheckoutCreate={appCheckoutCreate}
       setSubmittedFormValues={setSubmittedFormValues}
       submittedFormValues={submittedFormValues}
-      checkoutProcess={checkoutProcess}
+      checkoutProcesss={checkoutProcess}
       data={data}
       run={run}
     />
