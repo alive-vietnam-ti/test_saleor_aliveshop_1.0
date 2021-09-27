@@ -7,7 +7,6 @@ import {
 import {
   makeCheckoutCreateMutation,
   constructLines,
-  mapFormValuesToTemplate,
 } from './CheckoutAddressFormUtils';
 import { useRouter } from 'next/router';
 import { useAsync } from '@/utils/custom-hooks';
@@ -132,14 +131,12 @@ const CheckoutAddressForm: React.FC = ({
   setSubmittedFormValues,
   submittedFormValues,
   checkoutProcesss,
+  hasFormErrors,
 }): JSX.Element => {
+  const baseErrorsState = { hasErrors: false, errorMsg: '' };
   const [billingSameAsShipping, setBillingSameAsShipping] =
     React.useState(false);
-  const [formErrors, setFormErrors] = React.useState({
-    hasErrors: false,
-    errorMsg: '',
-  });
-
+  const [formErrors, setFormErrors] = React.useState(baseErrorsState);
   const shippingForm = React.useRef(undefined);
   const billingForm = React.useRef(undefined);
 
@@ -153,6 +150,7 @@ const CheckoutAddressForm: React.FC = ({
     });
     return lines;
   }
+
   function mapBackFieldErrorsToLabels(errorsArray, template) {
     let errorMessage = 'Sorry your form has errors in the following fields. ';
     errorsArray.forEach((error, i) => {
@@ -208,6 +206,8 @@ const CheckoutAddressForm: React.FC = ({
         query: gqlMutation,
       }),
     }; // clientConfig
+    // reset errors ob
+    setFormErrors(baseErrorsState);
 
     run(client(apiEndpoint, clientConfig));
   } // handleContinueToShipping
@@ -215,6 +215,31 @@ const CheckoutAddressForm: React.FC = ({
   function handleSameAsShipping() {
     setBillingSameAsShipping(!billingSameAsShipping);
   }
+
+  /*
+
+          const errorsStr = mapBackFieldErrorsToLabels(
+            data.data.checkoutCreate.checkoutErrors,
+            shippingFormTemplate
+          );
+          setFormErrors({
+            hasErrors: true,
+            errorMsg: errorsStr,
+          });
+          */
+  React.useEffect(() => {
+    if (!hasFormErrors) {
+      return;
+    }
+    const errorsStr = mapBackFieldErrorsToLabels(
+      data.data.checkoutCreate.checkoutErrors,
+      shippingFormTemplate
+    );
+    setFormErrors({
+      hasErrors: true,
+      errorMsg: errorsStr,
+    });
+  }, [hasFormErrors]);
 
   return (
     <div>
@@ -229,7 +254,9 @@ const CheckoutAddressForm: React.FC = ({
               type={field.type}
               name={field.name}
               submittedValue={
-                checkoutProcesss.shippingSubmitted
+                submittedFormValues.shippingFormValues
+                  ? submittedFormValues.shippingFormValues[field.name]
+                  : checkoutProcesss.shippingSubmitted
                   ? checkoutProcesss.shippingFormData.shippingFormValues[
                       field.name
                     ]
@@ -266,7 +293,9 @@ const CheckoutAddressForm: React.FC = ({
                   type={field.type}
                   name={field.name}
                   submittedValue={
-                    checkoutProcesss.shippingSubmitted
+                    submittedFormValues.billingFormValues
+                      ? submittedFormValues.billingFormValues[field.name]
+                      : checkoutProcesss.shippingSubmitted
                       ? checkoutProcesss.shippingFormData.billingFormValues[
                           field.name
                         ]
@@ -298,9 +327,8 @@ export const CheckoutAddressFormWrapper: React.FC = ({
     shippingFormValues: null,
     billingFormValues: null,
   });
-  const router = useRouter();
-
   let returnJSX = <Loading />;
+  const router = useRouter();
 
   React.useEffect(() => {
     if (wasSubmittedSuccess) {
@@ -308,44 +336,71 @@ export const CheckoutAddressFormWrapper: React.FC = ({
         router.push('/checkout/shipping');
       }, 10);
     }
-  }, [wasSubmittedSuccess]);
-
-  const addressForm = (
-    <CheckoutAddressForm
-      apiEndpoint={apiEndpoint}
-      shoppingCart={shoppingCart}
-      appCheckoutCreate={appCheckoutCreate}
-      setSubmittedFormValues={setSubmittedFormValues}
-      submittedFormValues={submittedFormValues}
-      checkoutProcesss={checkoutProcess}
-      data={data}
-      run={run}
-    />
-  );
+  }, [router, wasSubmittedSuccess]);
 
   if (!wasSubmittedSuccess) {
     switch (status) {
       case 'idle':
         // Check for submitted on checkoutProcess (need shippingSubmitted: false, shippingAddressData: {})
-        returnJSX = addressForm;
+        returnJSX = (
+          <CheckoutAddressForm
+            apiEndpoint={apiEndpoint}
+            shoppingCart={shoppingCart}
+            appCheckoutCreate={appCheckoutCreate}
+            setSubmittedFormValues={setSubmittedFormValues}
+            submittedFormValues={submittedFormValues}
+            checkoutProcesss={checkoutProcess}
+            hasFormErrors={false}
+            data={data}
+            run={run}
+          />
+        );
         break;
       case 'pending':
         break;
       case 'rejected':
         console.error(error);
-        returnJSX = <p>Errors</p>;
+        returnJSX = (
+          <p>
+            Sorry, there seems to be a network error. Please check your
+            connection and refresh the page.
+          </p>
+        );
         break;
       case 'resolved':
-        if (data.data.checkoutCreate.checkoutErrors.length > 0) {
-          // NEED TO IMPEMENT THIS
-          returnJSX = addressForm;
-        } else {
-          appCheckoutCreate(
-            data.data.checkoutCreate.checkout,
-            submittedFormValues
+        if (data.errors) {
+          console.error(
+            `\nError Details: ` +
+              data.errors?.map((e) => e.message).join('\n') ?? 'unknown'
           );
-          setWasSubmittedSuccess(true);
-        }
+          returnJSX = (
+            <p>Sorry, there is an error! Please refresh and try again</p>
+          );
+        } else {
+          //no data.errors
+          if (data.data.checkoutCreate.checkoutErrors.length > 0) {
+            //  return form with hasFormErrors set to true
+            returnJSX = (
+              <CheckoutAddressForm
+                apiEndpoint={apiEndpoint}
+                shoppingCart={shoppingCart}
+                appCheckoutCreate={appCheckoutCreate}
+                setSubmittedFormValues={setSubmittedFormValues}
+                submittedFormValues={submittedFormValues}
+                checkoutProcesss={checkoutProcess}
+                hasFormErrors={true}
+                data={data}
+                run={run}
+              />
+            );
+          } else {
+            appCheckoutCreate(
+              data.data.checkoutCreate.checkout,
+              submittedFormValues
+            );
+            setWasSubmittedSuccess(true);
+          } // checkoutErrors.length > 0 else
+        } //data.errors else
         break;
       default:
         returnJSX = <p>Sorry, we are not sure what happened</p>;
