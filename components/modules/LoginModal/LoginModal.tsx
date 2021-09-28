@@ -25,22 +25,58 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 }): JSX.Element => {
   const initStatusForm = {
     status: 'idle',
-    buttonTextSignUp: "Sign Up",
-    buttonTextSignIn: "Sign In",
     message: '',
   };
   const [statusForm, setStatusForm] = useState(initStatusForm);
   const router = useRouter();
 
   function login(formData: IOnSubmit): void {
-    console.log(formData);
+    setStatusForm({
+      status: 'pending',
+      message: '',
+    });
+    const tokenCreateQuery = `mutation TokenCreate {
+      tokenCreate(
+        email: "${formData.email}", 
+        password: "${formData.password}"
+      ) {
+        token
+        refreshToken
+        csrfToken
+        user {
+          email
+        }
+        errors {
+          field
+          message
+        }
+      }
+    }`;
+    const clientCongfig = {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json;charset=UTF-8',
+      },
+      body: JSON.stringify({
+        query: tokenCreateQuery,
+      }),
+    };
+    client(apiEndpoint, clientCongfig)
+      .then((responseObj: any) => {
+        console.log(responseObj);
+        if (responseObj.data.tokenCreate.errors.length) {
+          setStatusForm({
+            status: 'error',
+            message: 'Incorrect username or password.',
+          });
+        }
+      })
+      .catch((error: any) => { })
   }
   function register(formData: IOnSubmit): void {
     setStatusForm({
       status: '',
       message: '',
-      buttonTextSignUp: "Loading",
-      buttonTextSignIn: "",
     });
     const createUserQuery = `mutation AccountRegister {
       accountRegister(
@@ -79,8 +115,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           return setStatusForm({
             status: 'error',
             message: messageErr,
-            buttonTextSignUp: "Sign Up",
-            buttonTextSignIn: "",
           });
         }
         setStatusForm(initStatusForm);
@@ -96,8 +130,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         setStatusForm({
           status: 'error',
           message: 'Internal server error ' + error.message,
-          buttonTextSignUp: "Sign Up",
-          buttonTextSignIn: "",
         });
       });
   }
@@ -116,7 +148,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           <div>
             <LoginRegistrationForm
               onSubmit={login}
-              buttonText="Login"
+              buttonText={statusForm.status === 'pending' ? 'Loading' : 'Login'}
               formTitle="Login"
             />
             <p className={styles.callOut}>
@@ -133,7 +165,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           <div>
             <LoginRegistrationForm
               onSubmit={register}
-              buttonText={statusForm.buttonTextSignUp}
+              buttonText={statusForm.status === 'pending' ? 'Loading' : 'Sign Up'}
               formTitle="Sign Up"
             />
             <p className={styles.callOut}>
