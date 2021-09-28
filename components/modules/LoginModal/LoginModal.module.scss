@@ -25,3 +25,13 @@
   margin-left: 100px;
   margin-top: 15px;
 }
+
+@media (max-width: 767px) {
+  .loginModal {
+    width: 90vw;
+  }
+
+  .callOut {
+    margin-left: 0;
+  }
+}

@@ -5,7 +5,8 @@ import {
   IOnSubmit,
 } from '@/components/modules/LoginRegistrationForm';
 import { client } from '@/utils/api-client';
-import { useState, setState } from 'react';
+import { useState } from 'react';
+import { useRouter } from 'next/router';
 
 interface LoginModalProps {
   setShowLoginModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -22,25 +23,31 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   loginOrRegister,
   apiEndpoint,
 }): JSX.Element => {
-  const [errorForm, setErrorForm] = useState({
+  const initStatusForm = {
     status: 'idle',
+    buttonTextSignUp: "Sign Up",
+    buttonTextSignIn: "Sign In",
     message: '',
-  });
+  };
+  const [statusForm, setStatusForm] = useState(initStatusForm);
+  const router = useRouter();
 
   function login(formData: IOnSubmit): void {
     console.log(formData);
   }
   function register(formData: IOnSubmit): void {
-    setErrorForm({
+    setStatusForm({
       status: '',
       message: '',
+      buttonTextSignUp: "Loading",
+      buttonTextSignIn: "",
     });
     const createUserQuery = `mutation AccountRegister {
       accountRegister(
         input: {
           email: "${formData.email}"
           password: "${formData.password}"
-          redirectUrl: "http://localhost:3000/"
+          redirectUrl: "http://localhost:3000/account-confirm"
         }
       ) {
         accountErrors {
@@ -65,28 +72,37 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     };
     client(apiEndpoint, clientCongfig)
       .then((responseObj: any) => {
-        if (responseObj.data.accountRegister.accountErrors) {
+        if (responseObj.data.accountRegister.accountErrors.length) {
           const messageErr = responseObj.data.accountRegister.accountErrors.reduce(function (result: any, item: any) {
             return result + `${item.field} is ${item.message}`;
           }, '')
-          setErrorForm({
+          return setStatusForm({
             status: 'error',
             message: messageErr,
+            buttonTextSignUp: "Sign Up",
+            buttonTextSignIn: "",
           });
-        } else {
-          setLoginOrRegister('login');
         }
-
+        setStatusForm(initStatusForm);
+        setTimeout(() => {
+          setShowLoginModal(false);
+          router.push({
+            pathname: '/account-confirm',
+            query: { email: responseObj.data.accountRegister.user.email }
+          });
+        }, 10)
       })
       .catch((error: any) => {
-        setErrorForm({
+        setStatusForm({
           status: 'error',
           message: 'Internal server error ' + error.message,
+          buttonTextSignUp: "Sign Up",
+          buttonTextSignIn: "",
         });
       });
   }
   return (
-    <Dialog aria-label="Login or Register Form" isOpen={showLoginModal}>
+    <Dialog className={styles.loginModal} aria-label="Login or Register Form" isOpen={showLoginModal}>
       <div>
         <div className={styles.modalClose}>
           <button
@@ -117,7 +133,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           <div>
             <LoginRegistrationForm
               onSubmit={register}
-              buttonText="Sign Up"
+              buttonText={statusForm.buttonTextSignUp}
               formTitle="Sign Up"
             />
             <p className={styles.callOut}>
@@ -131,8 +147,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             </p>
           </div>
         )}
-        {errorForm && (
-          <div style={{ marginTop: 10, marginLeft: 100, color: 'red' }}>{errorForm.message}</div>
+        {statusForm && (
+          <div style={{ marginTop: 10, marginLeft: 100, color: 'red' }}>{statusForm.message}</div>
         )}
       </div>
     </Dialog>

@@ -1,5 +1,5 @@
 import { Button } from '@/components/elements/Button';
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './LoginRegistrationForm.module.scss';
 
 export interface IOnSubmit {
@@ -31,6 +31,7 @@ export const LoginRegistrationForm: React.FC<LoginRegistrationFormProps> = ({
       password,
     });
   }
+  const disabled = buttonText == 'Loading';
   return (
     <form onSubmit={handleSubmit} className={styles.formContainer}>
       <h2 className={styles.formTitle}>{formTitle}</h2>
@@ -43,7 +44,7 @@ export const LoginRegistrationForm: React.FC<LoginRegistrationFormProps> = ({
         <input id="password" type="password" name="password" />
       </div>
       <div>
-        <Button label={buttonText} />
+        <Button disabled={disabled} label={buttonText} />
       </div>
     </form>
   );
