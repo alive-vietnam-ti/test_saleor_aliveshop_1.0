@@ -91,12 +91,7 @@
   font-size: 1rem;
   font-weight: 900;
   background-color: white;
-}
-.goToCartBtnLink {
   color: $brand;
-  &:hover {
-    color: $brand;
-  }
 }
 .checkOutBtn {
   width: 100%;
@@ -107,12 +102,7 @@
   font-size: 1rem;
   font-weight: 900;
   background-color: $brand;
-}
-.checkOutBtnLink {
   color: white;
-  &:hover {
-    color: white;
-  }
 }
 /* Overlay */
 .overlay {

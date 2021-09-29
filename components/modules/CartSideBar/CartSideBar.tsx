@@ -2,6 +2,7 @@ import * as React from 'react';
 import styles from './CartSideBar.module.scss';
 import Link from 'next/link';
 import { DeleteCartItem } from '@/components/elements/DeleteCartItem';
+import { useRouter } from 'next/router';
 
 /* types */
 
@@ -93,6 +94,13 @@ export const CartSideBar: React.FC<CartProps> = ({
 }): JSX.Element => {
   const subtotal = 0;
   const total = 0;
+  const router = useRouter();
+
+  const handleClick = (url: string): void => {
+    setCartVisible(false);
+    router.push(url);
+  };
+
   return (
     <>
       <div
@@ -135,20 +143,16 @@ export const CartSideBar: React.FC<CartProps> = ({
           </div>
           <div className={styles.actionButtons}>
             <button
-              onClick={() => setCartVisible(false)}
+              onClick={() => handleClick('/cart')}
               className={styles.goToCartBtn}
             >
-              <Link href="/cart">
-                <a className={styles.goToCartBtnLink}>go to cart</a>
-              </Link>
+              go to cart
             </button>
             <button
-              onClick={() => setCartVisible(false)}
+              onClick={() => handleClick('/checkout/address')}
               className={styles.checkOutBtn}
             >
-              <Link href="/checkout/address">
-                <a className={styles.checkOutBtnLink}>go to checkout</a>
-              </Link>
+              go to checkout
             </button>
           </div>
         </footer>
