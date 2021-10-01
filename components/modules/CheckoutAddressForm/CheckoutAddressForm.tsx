@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import { useAsync } from '@/utils/custom-hooks';
 import { client } from '@/utils/api/api-client';
 import { Loading } from '@/components/elements/Loading';
+import { Redirect } from '@/components/elements/Redirect';
 
 /* Input Component */
 const Input = ({
@@ -327,18 +328,11 @@ export const CheckoutAddressFormWrapper: React.FC = ({
     shippingFormValues: null,
     billingFormValues: null,
   });
-  let returnJSX = <Loading />;
-  const router = useRouter();
+  let returnJSX: JSX.Element = <></>;
 
-  React.useEffect(() => {
-    if (wasSubmittedSuccess) {
-      setTimeout(() => {
-        router.push('/checkout/shipping');
-      }, 10);
-    }
-  }, [router, wasSubmittedSuccess]);
-
-  if (!wasSubmittedSuccess) {
+  if (wasSubmittedSuccess) {
+    returnJSX = <Redirect to="/checkout/shipping" />;
+  } else {
     switch (status) {
       case 'idle':
         // Check for submitted on checkoutProcess (need shippingSubmitted: false, shippingAddressData: {})
@@ -357,6 +351,7 @@ export const CheckoutAddressFormWrapper: React.FC = ({
         );
         break;
       case 'pending':
+        returnJSX = <Loading />;
         break;
       case 'rejected':
         console.error(error);
